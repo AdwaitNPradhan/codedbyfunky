@@ -25,16 +25,37 @@ const schema = z.object({
 // shortcut: in-memory rate limit, fine for one container; move to Mongo/Redis if scaled out.
 const WINDOW_MS = 10 * 60 * 1000
 const MAX_PER_WINDOW = 3
+// Global ceiling so rotating IPs cannot flood the inbox / mail quota.
+const MAX_GLOBAL_PER_WINDOW = 30
+const GLOBAL = '__global__'
 const g = globalThis as unknown as { __contactHits?: Map<string, number[]> }
 const hits: Map<string, number[]> = (g.__contactHits ??= new Map())
 
-function rateLimited(key: string) {
-  const now = Date.now()
+function bump(key: string, now: number) {
   const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS)
   recent.push(now)
   hits.set(key, recent)
-  if (hits.size > 5000) hits.clear()
-  return recent.length > MAX_PER_WINDOW
+  return recent.length
+}
+
+function rateLimited(key: string) {
+  const now = Date.now()
+  // Evict expired keys instead of clearing everything (clearing would reset limits for attackers).
+  if (hits.size > 5000) {
+    for (const [k, ts] of hits) if (!ts.some((t) => now - t < WINDOW_MS)) hits.delete(k)
+  }
+  const perIp = bump(key, now)
+  const global = bump(GLOBAL, now)
+  return perIp > MAX_PER_WINDOW || global > MAX_GLOBAL_PER_WINDOW
+}
+
+/**
+ * Client IP as seen by our own reverse proxy (Traefik on Dokploy appends the peer address
+ * as the rightmost X-Forwarded-For hop). Leftmost hops are client-controlled and spoofable.
+ */
+function clientIp(h: Headers) {
+  const hops = (h.get('x-forwarded-for') ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+  return hops.at(-1) || h.get('x-real-ip') || 'unknown'
 }
 
 const esc = (s: string) =>
@@ -66,7 +87,7 @@ export async function sendContact(_prev: ContactState, form: FormData): Promise<
   const data = parsed.data
 
   const h = await headers()
-  const ip = (h.get('x-forwarded-for')?.split(',')[0] || h.get('x-real-ip') || 'unknown').trim()
+  const ip = clientIp(h)
   const ipHash = crypto.createHash('sha256').update(ip + (process.env.PAYLOAD_SECRET ?? '')).digest('hex').slice(0, 16)
   if (rateLimited(ipHash)) {
     return { ok: false, message: 'Too many messages from you in a short time. Try again in a few minutes.' }
