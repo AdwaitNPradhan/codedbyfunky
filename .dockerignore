@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env
+.env.*
+.mcp.json
+media
+docs
+*.md
+Dockerfile
+.dockerignore
+.vscode
