@@ -31,22 +31,26 @@ const GLOBAL = '__global__'
 const g = globalThis as unknown as { __contactHits?: Map<string, number[]> }
 const hits: Map<string, number[]> = (g.__contactHits ??= new Map())
 
-function bump(key: string, now: number) {
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS)
-  recent.push(now)
-  hits.set(key, recent)
-  return recent.length
+const recent = (key: string, now: number) => {
+  const ts = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS)
+  hits.set(key, ts)
+  return ts
 }
 
+/** Check first, record only allowed requests — blocked spam must not drain the global bucket. */
 function rateLimited(key: string) {
   const now = Date.now()
   // Evict expired keys instead of clearing everything (clearing would reset limits for attackers).
   if (hits.size > 5000) {
     for (const [k, ts] of hits) if (!ts.some((t) => now - t < WINDOW_MS)) hits.delete(k)
   }
-  const perIp = bump(key, now)
-  const global = bump(GLOBAL, now)
-  return perIp > MAX_PER_WINDOW || global > MAX_GLOBAL_PER_WINDOW
+  const mine = recent(key, now)
+  if (mine.length >= MAX_PER_WINDOW) return true
+  const all = recent(GLOBAL, now)
+  if (all.length >= MAX_GLOBAL_PER_WINDOW) return true
+  mine.push(now)
+  all.push(now)
+  return false
 }
 
 /**
