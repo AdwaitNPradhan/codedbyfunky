@@ -62,9 +62,9 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  // Orbit is the homepage; the URL stays "/" and reuses the ISR-cached /orbit render.
+  // FunkyOS is the homepage; the URL stays "/" and reuses the ISR-cached /os render.
   async rewrites() {
-    return [{ source: '/', destination: '/orbit' }]
+    return [{ source: '/', destination: '/os' }]
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

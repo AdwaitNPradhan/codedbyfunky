@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { VARIANT_KEYS, VARIANT_META } from '@/variants/keys'
 
-// Static: no DB needed. Lets the owner compare the 5 designs (orbit is the homepage).
+// Static: no DB needed. Lets the owner compare the 5 designs (FunkyOS is the homepage).
 export const dynamic = 'force-static'
 
 const swatches: Record<string, [string, string]> = {
