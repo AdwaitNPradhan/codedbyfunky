@@ -7,7 +7,7 @@ import { projectsOf } from '../lib/items'
 import { useOrbit } from '../lib/store'
 import { imgUrl, pad } from '../lib/util'
 import { ArrowRight, ArrowUpRight, Btn, BtnLink, Chip } from '../ui/bits'
-import { Panel, Station, Title } from './Station'
+import { EmptyStation, Panel, Station, Title } from './Station'
 import { Pager } from './Pager'
 import s from '../orbit.module.css'
 
@@ -17,7 +17,7 @@ export function Work() {
   const shown = flight ? Math.min(items.length, CAP.projects) : items.length
   const active = idx.project
 
-  if (!items.length) return null
+  if (!items.length) return <EmptyStation i={1} title="Work" />
   return (
     <Station i={1}>
       <Panel station={1} label="Projects">

@@ -29,9 +29,9 @@ const securityHeaders = [
       "font-src 'self' data:",
       "style-src 'self' 'unsafe-inline'",
       // Next inlines bootstrap scripts; three/drei workers use blob:. 'unsafe-eval' only in dev (React refresh).
-      `script-src 'self' 'unsafe-inline' blob:${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
+      `script-src 'self' 'unsafe-inline' blob: https://static.cloudflareinsights.com${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
       "worker-src 'self' blob:",
-      "connect-src 'self' blob: data:",
+      "connect-src 'self' blob: data: https://cloudflareinsights.com",
       ...(process.env.NODE_ENV === 'production' ? ['upgrade-insecure-requests'] : []),
     ].join('; '),
   },

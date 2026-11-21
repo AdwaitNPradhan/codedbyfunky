@@ -10,7 +10,7 @@ import { gamesOf } from '../lib/items'
 import { useOrbit } from '../lib/store'
 import { imgUrl, pad } from '../lib/util'
 import { ArrowUpRight, Btn, BtnLink, Close } from '../ui/bits'
-import { Panel, Station, Title } from './Station'
+import { EmptyStation, Panel, Station, Title } from './Station'
 import { Pager } from './Pager'
 import s from '../orbit.module.css'
 
@@ -52,7 +52,7 @@ export function Games() {
   const { data, api, idx, flight, playing, gameReset } = useOrbit()
   const games = gamesOf(data)
   const active = idx.game
-  if (!games.length) return null
+  if (!games.length) return <EmptyStation i={3} title="Games" />
 
   return (
     <Station i={3}>

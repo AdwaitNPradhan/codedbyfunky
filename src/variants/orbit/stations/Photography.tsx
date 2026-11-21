@@ -7,7 +7,7 @@ import { photosOf } from '../lib/items'
 import { useOrbit } from '../lib/store'
 import { imgUrl, monthYear, track } from '../lib/util'
 import { ArrowUpRight, Btn, BtnLink } from '../ui/bits'
-import { Panel, Station, Title } from './Station'
+import { EmptyStation, Panel, Station, Title } from './Station'
 import { Pager } from './Pager'
 import s from '../orbit.module.css'
 
@@ -18,7 +18,7 @@ export function Photography() {
   const photos = photosOf(data)
   const ig = data.settings.instagram
   const active = idx.photo
-  if (!photos.length && !ig.url) return null
+  if (!photos.length && !ig.url) return <EmptyStation i={2} title="Photography" />
 
   return (
     <Station i={2}>

@@ -7,7 +7,7 @@ import { hardwareOf, HW_STATUS_LABEL } from '../lib/items'
 import { useOrbit } from '../lib/store'
 import { imgUrl, pad } from '../lib/util'
 import { ArrowUpRight, BtnLink } from '../ui/bits'
-import { Panel, Station, Title } from './Station'
+import { EmptyStation, Panel, Station, Title } from './Station'
 import { Pager } from './Pager'
 import s from '../orbit.module.css'
 
@@ -15,7 +15,7 @@ export function Hardware() {
   const { data, api, idx, flight } = useOrbit()
   const items = hardwareOf(data)
   const active = idx.hw
-  if (!items.length) return null
+  if (!items.length) return <EmptyStation i={4} title="Hardware" />
 
   return (
     <Station i={4}>

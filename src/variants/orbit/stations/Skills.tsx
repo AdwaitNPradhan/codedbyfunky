@@ -5,7 +5,7 @@ import { SKILL_LABEL, SKILL_ORDER } from '../lib/items'
 import { useOrbit } from '../lib/store'
 import { monthYear } from '../lib/util'
 import { ArrowUpRight, BtnLink } from '../ui/bits'
-import { Panel, Station, Title } from './Station'
+import { EmptyStation, Panel, Station, Title } from './Station'
 import s from '../orbit.module.css'
 
 const KIND_LABEL = { job: 'Job', freelance: 'Freelance', education: 'Education', award: 'Award', talk: 'Talk' } as const
@@ -14,7 +14,7 @@ export function Skills() {
   const { data, api, skillGroup, mobile } = useOrbit()
   const groups = SKILL_ORDER.map((cat) => ({ cat, items: data.skills.filter((k) => k.category === cat) })).filter((g) => g.items.length)
   const exp = data.experience
-  if (!groups.length && !exp.length) return null
+  if (!groups.length && !exp.length) return <EmptyStation i={5} title="Skills" />
 
   return (
     <Station i={5}>

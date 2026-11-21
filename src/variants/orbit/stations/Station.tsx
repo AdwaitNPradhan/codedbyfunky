@@ -69,3 +69,17 @@ export function useGo() {
     api.toStation(i)
   }
 }
+
+/** An empty CMS collection still mounts its section: the flight math indexes all 7 stations by position. */
+export function EmptyStation({ i, title }: { i: number; title: string }) {
+  return (
+    <Station i={i}>
+      <Panel station={i} label={title}>
+        <div className={s.copy}>
+          <Title>{title}</Title>
+          <p data-rise>Coming soon.</p>
+        </div>
+      </Panel>
+    </Station>
+  )
+}
