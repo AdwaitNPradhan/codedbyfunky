@@ -55,7 +55,16 @@ const nextConfig: NextConfig = {
         source: '/api/media/file/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      // 3D models in public/models carry a version in the file name (e.g. arcade-v1.glb).
+      {
+        source: '/models/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
     ]
+  },
+  // Orbit is the homepage; the URL stays "/" and reuses the ISR-cached /orbit render.
+  async rewrites() {
+    return [{ source: '/', destination: '/orbit' }]
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

@@ -34,9 +34,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description = settings.seo.description || settings.shortBio
   const og = settings.seo.ogImage?.hero || settings.seo.ogImage?.url
   return {
-    title: { absolute: `${title} · ${VARIANT_META[variant].title}` },
+    title: { absolute: variant === 'orbit' ? title : `${title} · ${VARIANT_META[variant].title}` },
     description,
-    alternates: { canonical: `/${variant}` },
+    alternates: { canonical: variant === 'orbit' ? '/' : `/${variant}` },
     openGraph: { title, description, images: og ? [og] : undefined },
   }
 }
