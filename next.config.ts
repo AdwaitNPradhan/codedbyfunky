@@ -63,6 +63,11 @@ const nextConfig: NextConfig = {
         source: '/models/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      // The in-browser Linux (v86) files in public/linux carry a version in the file name (e.g. buildroot-v1.bin).
+      {
+        source: '/linux/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
     ]
   },
   // FunkyOS is the homepage; the URL stays "/" and reuses the ISR-cached /os render.

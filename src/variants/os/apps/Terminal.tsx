@@ -124,6 +124,7 @@ export default function Terminal({ active, hidden }: AppProps) {
     push(
       <div className={ui.tOut}>
         <div className={ui.tHead}>FunkyOS Terminal 1.0</div>
+        <div className={ui.tDim}>FunkyOS shell. For a real Linux in your browser, run `linux`.</div>
         <div>
           Type <code>help</code> to list commands, or click one: {CHIPS.map((c) => (
             <button key={c} type="button" className={ui.tLink} onClick={() => run(c)}>

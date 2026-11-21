@@ -85,7 +85,9 @@ export function Dock() {
   // Featured products are installed apps pinned to the dock (not on narrow screens).
   const pinned = os.area.w >= 900 ? os.data.projects.filter((p) => p.featured).slice(0, 3) : []
   const pinnedIds = new Set(pinned.map((p) => idFor('product', { slug: p.slug })))
-  const extra = os.wins.filter((w) => !DOCK_APPS.includes(w.app) && !pinnedIds.has(w.id))
+  // Linux.app is pinned too, on screens wide enough for it.
+  const dockApps: AppId[] = os.area.w >= 900 ? [...DOCK_APPS, 'linux'] : DOCK_APPS
+  const extra = os.wins.filter((w) => !dockApps.includes(w.app) && !pinnedIds.has(w.id))
 
   const toggle = (w: WinState | undefined, app: AppId, props?: WinProps) => {
     if (!w) return os.open(app, props ?? (app === 'files' ? { path: 'projects' } : {}))
@@ -100,7 +102,7 @@ export function Dock() {
         onPointerMove={(e) => e.pointerType === 'mouse' && mouseX.set(e.clientX)}
         onPointerLeave={() => mouseX.set(-9999)}
       >
-        {DOCK_APPS.filter((a) => needsSpotify(a, os.data)).map((app) => (
+        {dockApps.filter((a) => needsSpotify(a, os.data)).map((app) => (
           <Slot
             key={app}
             mouseX={mouseX}

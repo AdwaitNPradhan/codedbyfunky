@@ -217,3 +217,36 @@ Tools: Playwright (headless Chromium) against the dev server (port 3101) and, fo
 - The generated board is gone. The hardware viewer now loads **Arduino Uno by M Ferrieu**, Creative Commons Attribution (CC BY), from Poly Pizza (https://poly.pizza/m/2BEJQybmqQT). Source file 2.48 MB, optimized with `npx @gltf-transform/cli optimize --compress meshopt --texture-compress webp --simplify false` to **296 KB**: `public/models/arduino-uno-v1.glb` (the `/models/*` cache header is already immutable). It loads with `useGLTF(url, false, true)`: meshopt only, no Draco, no KTX2, no CDN.
 - Credit: `docs/CREDITS.md` and a visible link in the viewer window.
 - It is one stand-in board for every hardware project (an Arduino Uno for an ESP32 build, for example). The part list beside it comes from the project. A project-specific model needs a file per project.
+
+## Follow-up 6: a real Linux in the browser (Linux.app)
+
+**What it is.** A real Linux (kernel 6.8.12, Buildroot user space) running in the visitor's browser tab through the v86 x86 emulator (BSD-2). 64 MB of RAM, no network (no `network_relay_url`), nothing touches the server. The Terminal app stays the "FunkyOS shell" (a pretend shell for this site); the new app is badged "REAL LINUX, runs in your browser", the start screen compares the two, and the Terminal banner and `help` say `linux` starts the real one.
+
+**Files** (`public/linux/`, versioned names, `Cache-Control: public, max-age=31536000, immutable` through a new `/linux/:path*` rule in `next.config.ts`, the only config change):
+
+| File | What | Raw size | gzip |
+|---|---|---|---|
+| `libv86-v1.js` | v86 0.5.473 (npm package `v86`, vendored; no new dependency) | 359,857 B | 93,320 B |
+| `v1-v86.wasm` | the emulator core | 2,007,347 B | 379,720 B |
+| `v1-v86-fallback.wasm` | only fetched on browsers that cannot run the main one | 2,040,034 B | 386,977 B |
+| `seabios-v1.bin`, `vgabios-v1.bin` | SeaBIOS and VGA BIOS from `copy/v86` | 131,072 B + 36,352 B | 65,873 B + 15,951 B |
+| `buildroot-v1.bin` | kernel and Buildroot root file system from i.copy.sh (`buildroot-bzimage68.bin`) | 10,068,480 B | 10,053,301 B |
+
+A normal boot loads 12.6 MB raw (about 10.6 MB if the proxy compresses; the kernel image is already compressed inside). The progress bar counts the wasm, both BIOS files and the kernel (12.2 MB). `next start` serves these files uncompressed; a proxy may compress the script, the wasm and the BIOS files. Nothing loads until the visitor presses "Boot Linux"; a second boot reads everything from the browser cache (about 0.5 s). SHA-256 of the three downloaded binaries: kernel `507a759c…2eb1c`, SeaBIOS `73e3f359…4d98`, VGA BIOS `a4bc0d80…7880`. Licenses and source links (v86 BSD-2, SeaBIOS LGPLv3, Linux GPLv2, Buildroot user space) are in `docs/CREDITS.md`.
+
+**Behaviour.**
+- Start screen, then a real byte progress bar (our own `fetch` with a stream reader, passed to v86 as buffers), then the Linux boot log on the VGA text screen (canvas, VGA font). The shell is ready in about 10 s.
+- Keyboard: v86's own keyboard is off. Keys typed on the screen go to Linux (text as US-layout scan codes, so Enter, arrows and Ctrl combinations work). The keys never reach FunkyOS (`/`, Esc and so on). Cmd shortcuts and Alt+Tab stay with FunkyOS. Control+Alt+Escape gives the keyboard back, so there is no keyboard trap.
+- Phones: a "best on desktop" hint, an input box that types into Linux, and Tab, Esc, Ctrl-C, up and down buttons.
+- Lifecycle: closing the window destroys the VM. Minimising pauses the CPU; after 30 s minimised the VM is destroyed and the window shows "Linux is off, Boot again". Reboot and Stop buttons are in the window.
+- Entry points: `Linux.app` on the desktop, first in Files > Applications, pinned in the dock (width 900 px and up), the phone home screen, the palette, the commands `linux`, `boot linux` and `open linux`, and the share link `?app=linux` (it opens the start screen, it does not start the download).
+
+**Tests (production build, `npx next start`, CSP unchanged: `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: ...`, no `'unsafe-eval'`).**
+- 1280×800: nothing requested from `/linux/` before the button; real progress samples (0, 5.0 and 8.9 MB of 12.2 MB with the network limited to 4 MB/s); boot to a shell; `ls`, `uname -a` (`Linux (none) 6.8.12 ... i686 GNU/Linux`), `cat /proc/cpuinfo`, `echo`; `/` and Esc typed inside Linux do not open the palette or close the window; `rm -rf /` ran inside the VM only (FunkyOS stayed alive); Control+Alt+Escape; close and reopen; second boot from cache; minimised for 33 s and the VM was stopped.
+- 390×844 touch: start screen with the hint, boot, typing through the input box, up arrow, back closes the sheet, no horizontal overflow.
+- No Content-Security-Policy violations (a `securitypolicyviolation` listener found none) and no console errors in any run.
+- Not tested: a real phone, Safari, Firefox (the v86 wasm needs a current browser; the fallback wasm exists for older ones), non-US keyboard layouts (characters are typed on a US layout, letters from other layouts are skipped), very slow networks beyond the 4 MB/s run.
+
+### Spotify corner fix
+
+The embed draws its own 12 px rounded corners, and the iframe's white background showed through them. The iframe now sits in a dark (#121212) stage with 8 px padding and a clip box (`border-radius: 12px; overflow: hidden`), and the iframe has `display: block`, `border-radius: 12px` and a dark background. Checked at 390 (phone sheet) and 1280, normal and maximised, teal and slate wallpaper: the pixels at the four corners of the iframe and in the frame around it are all #121212, and there is no gap above the footer note.

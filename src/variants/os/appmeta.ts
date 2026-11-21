@@ -71,6 +71,13 @@ export const META: Record<AppId, Meta> = {
     h: 560,
     title: (p, d) => (hw(d, p.slug) ? `${hw(d, p.slug)!.title} · 3D` : '3D Viewer'),
   },
+  linux: {
+    label: 'Linux.app',
+    icon: 'linux',
+    w: 840,
+    h: 600,
+    title: () => 'Real Linux (runs in your browser)',
+  },
   browser: {
     label: 'Browser',
     icon: 'browser',
@@ -113,6 +120,7 @@ export const DESKTOP_APPS: AppId[] = [
   'blog',
   'spotify',
   'guestbook',
+  'linux',
 ]
 export const HOME_APPS: AppId[] = [
   'about',
@@ -128,6 +136,7 @@ export const HOME_APPS: AppId[] = [
   'blog',
   'spotify',
   'guestbook',
+  'linux',
   'settings',
 ]
 /** Apps that only exist when the CMS has the data for them. */

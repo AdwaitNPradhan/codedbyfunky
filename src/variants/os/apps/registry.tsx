@@ -35,6 +35,7 @@ const VIEWS: Record<AppId, ComponentType<AppProps>> = {
   product: lazy(() => import('./Product')),
   model: lazy(() => import('./Model3D')),
   guestbook: lazy(() => import('./Guestbook')),
+  linux: lazy(() => import('./Linux')),
 }
 
 export function AppView({

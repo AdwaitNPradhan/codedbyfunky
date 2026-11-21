@@ -271,6 +271,8 @@ const APP_ALIASES: Record<string, AppId> = {
   guestbook: 'guestbook',
   apps: 'files',
   applications: 'files',
+  linux: 'linux',
+  vm: 'linux',
 }
 
 const findProject = (d: SiteData, q: string) => {
@@ -392,7 +394,7 @@ export const COMMANDS: Record<string, Cmd> = {
         </table>
         <Dim>
           Tab completes. ↑/↓ history. Ctrl+L clears. Try `sudo hire funky`. Resume: `resume`,
-          `cat resume.txt`, `whoami --verbose`.
+          `cat resume.txt`, `whoami --verbose`. This is the FunkyOS shell; `linux` starts a real one.
         </Dim>
       </Lines>
     ),
@@ -592,6 +594,22 @@ export const COMMANDS: Record<string, Cmd> = {
       if (path.length === 0) return ctx.setCwd([])
       if (path.length === 1 && fs[lc(path[0])] && path[0] !== '') return ctx.setCwd([lc(path[0])])
       return `cd: ${args[0]}: not a directory`
+    },
+  },
+  linux: {
+    desc: 'start a real Linux in your browser (opens a window)',
+    run: (_a, { os }) => {
+      os.open('linux')
+      return 'opening Linux.app. This shell is the FunkyOS shell; that window is a real Linux.'
+    },
+  },
+  boot: {
+    desc: 'boot an operating system',
+    usage: 'boot linux',
+    run: (args, { os }) => {
+      if (lc(args[0] ?? '') !== 'linux') return 'usage: boot linux'
+      os.open('linux')
+      return 'booting Linux in a new window (press Boot there). It is a real Linux, run by your browser.'
     },
   },
   versions: {

@@ -331,6 +331,16 @@ const art: Record<string, ReactNode> = {
       <path d="M16 15l11-6-11-6-11 6z" fill={A} stroke={L} strokeWidth="2" strokeLinejoin="round" />
     </>
   ),
+  linux: (
+    <>
+      <path d="M16 3c-4 0-6 4-6 9 0 3-3 5-3 9 0 4 4 7 9 7s9-3 9-7c0-4-3-6-3-9 0-5-2-9-6-9z" fill="#1b1b1f" stroke={L} strokeWidth="2" strokeLinejoin="round" />
+      <path d="M16 13c-3 0-5 4-5 8 0 3 2 5 5 5s5-2 5-5c0-4-2-8-5-8z" fill={P} />
+      <rect x="13" y="9" width="2" height="3" fill={P} />
+      <rect x="17" y="9" width="2" height="3" fill={P} />
+      <path d="M14 13h4l-2 2z" fill={Y} />
+      <path d="M8 28l5-2v3H8zM24 28l-5-2v3h5z" fill={Y} stroke={L} strokeWidth="1.5" />
+    </>
+  ),
   apps: (
     <>
       <path d="M3 7h10l3 3h13v17H3z" fill={Y} stroke={L} strokeWidth="2" />

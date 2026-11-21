@@ -16,15 +16,18 @@ export default function Spotify(_: AppProps) {
     )
   return (
     <div className={ui.spotify}>
-      <div className={ui.bStage}>
-        <iframe
-          className={ui.bFrame}
-          title={`${sp.label} on Spotify`}
-          src={sp.src}
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-        />
+      <div className={ui.spStage}>
+        {/* The embed has its own rounded corners. A dark clip box behind and around it keeps the window panel from showing in them. */}
+        <div className={ui.spClip}>
+          <iframe
+            className={ui.spFrame}
+            title={`${sp.label} on Spotify`}
+            src={sp.src}
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
         <div className={`${ui.bLoad} ${loaded ? ui.bLoadDone : ''}`} role="status">
           {loaded ? null : (
             <>

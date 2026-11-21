@@ -72,18 +72,33 @@ export default function Files({ props, active }: AppProps) {
           props: { slug: p.slug },
         }))
       case 'applications':
-        return data.projects.map((p) => ({
+        return [
+          {
+            id: 'linux',
+            name: 'Linux.app',
+            kind: 'Application · real Linux',
+            year: '',
+            ts: Number.MAX_SAFE_INTEGER, // first under the default newest-first sort
+            stack: 'v86, Buildroot, runs in your browser',
+            img: null,
+            icon: 'linux' as IconName,
+            summary: 'A real Linux that runs in your browser. No network, nothing leaves your device.',
+            app: 'linux' as AppId,
+            props: {},
+          },
+          ...data.projects.map((p) => ({
           id: p.slug,
           name: `${p.title}.app`,
           kind: 'Application',
           year: p.year ? String(p.year) : '',
           stack: p.stack.join(', '),
           img: p.appIcon ?? p.cover,
-          icon: 'product',
+          icon: 'product' as IconName,
           summary: p.summary,
-          app: 'product',
+          app: 'product' as AppId,
           props: { slug: p.slug },
-        }))
+        })),
+        ]
       case 'media':
         return data.photos.map((p) => ({
           id: p.id,

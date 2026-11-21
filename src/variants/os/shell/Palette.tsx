@@ -52,6 +52,7 @@ export function Palette({ onClose }: { onClose: () => void }) {
         'blog',
         'spotify',
         'guestbook',
+        'linux',
         'settings',
       ] as AppId[]
     )
