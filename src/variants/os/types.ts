@@ -12,6 +12,12 @@ export type AppId =
   | 'resume'
   | 'settings'
   | 'browser'
+  | 'spotify'
+  | 'notes'
+  | 'blog'
+  | 'product'
+  | 'guestbook'
+  | 'model'
 
 export type Geo = { x: number; y: number; w: number; h: number }
 export type WinProps = Record<string, string>
@@ -40,6 +46,8 @@ export type Settings = {
   accent: Accent
   reduceMotion: boolean
   sound: boolean
+  /** 3D wallpaper. Only runs when the device can take it. */
+  wall3d: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -47,6 +55,7 @@ export const DEFAULT_SETTINGS: Settings = {
   accent: 'orange',
   reduceMotion: false,
   sound: false,
+  wall3d: true,
 }
 export const WALLS: Wall[] = ['teal', 'ember', 'slate']
 export const ACCENTS: Accent[] = ['orange', 'sun', 'mint', 'rose']

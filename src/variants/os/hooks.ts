@@ -58,3 +58,33 @@ export function useClock(opts: Intl.DateTimeFormatOptions) {
   }, [])
   return now ? now.toLocaleString('en-GB', opts) : ''
 }
+
+type Nav = Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } }
+
+/** A weak device or a data-saver connection. 3D is simplified or off there. */
+export function isLowPower() {
+  const n = navigator as Nav
+  return (
+    Boolean(n.connection?.saveData) ||
+    (n.hardwareConcurrency ?? 4) < 4 ||
+    (n.deviceMemory ?? 8) < 4
+  )
+}
+
+export function hasWebGL() {
+  try {
+    const c = document.createElement('canvas')
+    const gl = (c.getContext('webgl2') || c.getContext('webgl')) as WebGLRenderingContext | null
+    gl?.getExtension('WEBGL_lose_context')?.loseContext()
+    return Boolean(gl)
+  } catch {
+    return false
+  }
+}
+
+/** The 3D wallpaper runs only on a desktop with a mouse, a decent device and WebGL. */
+export function canRunWallpaper3D() {
+  return (
+    !isLowPower() && window.matchMedia('(hover: hover) and (pointer: fine)').matches && hasWebGL()
+  )
+}

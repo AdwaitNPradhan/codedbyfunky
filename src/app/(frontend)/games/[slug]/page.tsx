@@ -46,24 +46,26 @@ export default async function GamePage({ params }: Params) {
 
   return (
     <main className={css.page} style={vars}>
-      <header className={css.bar}>
-        <nav className={css.nav} aria-label="Site">
-          <Link href="/" className={css.link}>
-            ← Home
-          </Link>
-          <Link href="/games" className={css.link}>
-            All games
-          </Link>
-        </nav>
-        <div className={css.heading}>
-          <h1 className={css.h1}>{game.title}</h1>
-          {game.tagline && <p className={css.tagline}>{game.tagline}</p>}
-        </div>
-        {game.controls && <span className={css.chip}>{game.controls}</span>}
-      </header>
+      <div className={css.screen}>
+        <header className={css.bar}>
+          <nav className={css.nav} aria-label="Site">
+            <Link href="/" className={css.link}>
+              ← Home
+            </Link>
+            <Link href="/games" className={css.link}>
+              All games
+            </Link>
+          </nav>
+          <div className={css.heading}>
+            <h1 className={css.h1}>{game.title}</h1>
+            {game.tagline && <p className={css.tagline}>{game.tagline}</p>}
+          </div>
+          {game.controls && <span className={css.chip}>{game.controls}</span>}
+        </header>
 
-      <div className={css.stage}>
-        <GameEmbed game={game.component} title={game.title} autoStart className={css.frame} />
+        <div className={css.stage}>
+          <GameEmbed game={game.component} title={game.title} autoStart className={css.frame} />
+        </div>
       </div>
 
       <section className={css.more} aria-label="About and more games">

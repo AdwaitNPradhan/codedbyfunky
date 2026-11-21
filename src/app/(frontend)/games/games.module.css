@@ -91,24 +91,41 @@
 }
 
 /* ---------- the game frame ---------- */
+/* Header + frame fill exactly one viewport; the "about / more games" block sits below the fold. */
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 520px;
+}
 .stage {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 0 var(--pad) var(--pad);
 }
 .frame {
   width: 100%;
-  height: clamp(440px, calc(100dvh - 118px), 980px);
+  height: 100%;
   border-radius: 20px;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--game-fg) 14%, transparent),
     0 30px 80px -30px color-mix(in srgb, var(--game-accent) 40%, transparent);
+}
+/* Landscape phones: give the game every pixel. */
+@media (max-height: 520px) {
+  .screen {
+    min-height: 0;
+  }
+  .tagline,
+  .chip {
+    display: none;
+  }
 }
 @media (max-width: 640px) {
   .stage {
     padding: 0;
   }
   .frame {
-    height: calc(100dvh - 104px);
-    min-height: 420px;
     border-radius: 0;
   }
   .chip {

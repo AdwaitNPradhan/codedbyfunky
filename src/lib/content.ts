@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import type { Img, SiteData } from './types'
+import type { Img, SiteData, Spotify } from './types'
 import { isGameKey } from '@/games/keys'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -14,6 +14,34 @@ const safeUrl = (v: unknown) =>
   /^(https?:|mailto:|\/(?!\/))/i.test(str(v).trim()) ? str(v).trim() : ''
 const safeUrlOrNull = (v: unknown) => safeUrl(v) || null
 const arr = <T = unknown>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : [])
+
+const SPOTIFY_PATH =
+  /^\/(?:intl-[a-z]{2}(?:-[a-z]{2})?\/)?(playlist|album|track|artist|episode|show)\/([A-Za-z0-9]{10,32})\/?$/
+
+/**
+ * Accept only https://open.spotify.com/<kind>/<id>. The embed URL is built from the parsed
+ * parts, never from the raw string, so nothing else the editor typed can reach the iframe.
+ */
+export function parseSpotify(rawUrl: unknown, rawLabel?: unknown): Spotify | null {
+  let u: URL
+  try {
+    u = new URL(str(rawUrl).trim())
+  } catch {
+    return null
+  }
+  if (u.protocol !== 'https:' || u.hostname !== 'open.spotify.com') return null
+  if (u.port || u.username || u.password) return null
+  const m = SPOTIFY_PATH.exec(u.pathname)
+  if (!m) return null
+  const kind = m[1] as Spotify['kind']
+  return {
+    url: `https://open.spotify.com/${kind}/${m[2]}`,
+    label: str(rawLabel).trim().slice(0, 60) || 'Spotify',
+    kind,
+    src: `https://open.spotify.com/embed/${kind}/${m[2]}?utm_source=generator`,
+    height: kind === 'track' || kind === 'episode' ? 152 : 352,
+  }
+}
 
 export function toImg(m: unknown): Img | null {
   if (!m || typeof m !== 'object') return null
@@ -47,7 +75,8 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
     sort: 'order',
     pagination: false,
   } as const
-  const [site, projects, photos, games, hardware, skills, experience] = await Promise.all([
+  const [site, projects, photos, games, hardware, skills, experience, posts, guestbook] =
+    await Promise.all([
     payload.findGlobal({ slug: 'site', depth: 1, overrideAccess: false }),
     payload.find({ collection: 'projects', ...q }),
     payload.find({ collection: 'photos', ...q }),
@@ -55,6 +84,16 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
     payload.find({ collection: 'hardware', ...q }),
     payload.find({ collection: 'skills', ...q }),
     payload.find({ collection: 'experience', ...q, sort: '-start' }),
+    payload.find({ collection: 'posts', ...q, sort: '-publishedAt' }),
+    // Public access returns approved entries only (and strips ipHash).
+    payload.find({
+      collection: 'guestbook',
+      overrideAccess: false,
+      depth: 0,
+      limit: 100,
+      sort: '-createdAt',
+      pagination: false,
+    }),
   ])
   const s = site as Doc
   const resume = s.resume as Doc | undefined
@@ -90,6 +129,7 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
         description: str(s.seoDescription),
         ogImage: toImg(s.ogImage),
       },
+      spotify: parseSpotify(s.spotify?.url, s.spotify?.label),
     },
     projects: projects.docs.map((d: Doc) => ({
       id: String(d.id),
@@ -102,6 +142,7 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       stack: arr<string>(d.stack),
       tags: arr<string>(d.tags),
       cover: toImg(d.cover),
+      appIcon: toImg(d.appIcon),
       gallery: imgs(d.gallery),
       problem: str(d.problem),
       approach: str(d.approach),
@@ -182,6 +223,27 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       url: safeUrlOrNull(d.url),
       summary: str(d.summary),
       highlights: arr<Doc>(d.highlights).map((h) => str(h.text)),
+    })),
+    posts: posts.docs
+      .filter((d: Doc) => /^[a-z0-9-]+$/.test(str(d.slug)))
+      .map((d: Doc) => ({
+        id: String(d.id),
+        kind: d.kind === 'note' ? ('note' as const) : ('blog' as const),
+        slug: d.slug,
+        title: str(d.title),
+        excerpt: str(d.excerpt),
+        body: str(d.body),
+        publishedAt: str(d.publishedAt) || str(d.createdAt),
+        tags: arr<string>(d.tags),
+        cover: toImg(d.cover),
+        featured: Boolean(d.featured),
+      })),
+    guestbook: guestbook.docs.map((d: Doc) => ({
+      id: String(d.id),
+      name: str(d.name),
+      message: str(d.message),
+      sticker: str(d.sticker),
+      createdAt: str(d.createdAt),
     })),
   }
 })

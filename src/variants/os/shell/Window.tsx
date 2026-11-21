@@ -3,7 +3,8 @@
 import { memo, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { animate, m, useMotionValue } from 'motion/react'
 import { AppView } from '../apps/registry'
-import { iconOf, MENU_H, META, MIN_H, MIN_W } from '../appmeta'
+import { MENU_H, META, MIN_H, MIN_W } from '../appmeta'
+import { WinIcon } from './WinIcon'
 import { Icon } from '../icons'
 import { useOS } from '../store'
 import type { WinState } from '../types'
@@ -250,11 +251,20 @@ export const Window = memo(function Window({
             !(e.target as HTMLElement).closest('button') && os.toggleMax(win.id)
           }
         >
-          <Icon name={iconOf(win.app, win.props)} size={18} />
+          <WinIcon app={win.app} props={win.props} size={18} />
           <span className={styles.titleText} id={titleId}>
             {title}
           </span>
           <div className={styles.tbtns}>
+            <button
+              type="button"
+              className={styles.tbtn}
+              aria-label="Share link"
+              title="Share link"
+              onClick={() => os.share(win.app, win.props)}
+            >
+              <Icon name="share" size={13} />
+            </button>
             <button
               type="button"
               className={styles.tbtn}

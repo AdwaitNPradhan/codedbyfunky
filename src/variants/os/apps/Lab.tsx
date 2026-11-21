@@ -77,6 +77,9 @@ export default function Lab({ props }: AppProps) {
               )}
               <p>{h.summary}</p>
               <div className={ui.ctaRow}>
+                <button type="button" className={`${ui.btn} ${ui.btnPrimary}`} onClick={() => os.open('model', { slug: h.slug })}>
+                  View in 3D
+                </button>
                 {h.links.repo && (
                   <Ext href={h.links.repo} className={ui.btn}>
                     Repo ↗

@@ -23,6 +23,8 @@ export type IconName =
   | 'lock'
   | 'external'
   | 'expand'
+  | 'share'
+  | 'apps'
 
 const L = 'var(--ic-line)'
 const P = 'var(--ic-paper)'
@@ -281,6 +283,71 @@ const art: Record<string, ReactNode> = {
       <rect x="21" y="12" width="1" height="1" fill="#fff" />
       <rect x="13" y="26" width="1" height="1" fill="#fff" />
     </>
+  ),
+  spotify: (
+    <>
+      <circle cx="16" cy="16" r="13" fill="#1ED760" stroke={L} strokeWidth="2" />
+      <path d="M8 12c5-2 11-1.5 16 1.5" fill="none" stroke={L} strokeWidth="2.5" />
+      <path d="M9.5 17c4-1.5 8.5-1 12.5 1.5" fill="none" stroke={L} strokeWidth="2.5" />
+      <path d="M11 21.5c3-1 6-.5 9 1.2" fill="none" stroke={L} strokeWidth="2.5" />
+    </>
+  ),
+  notes: (
+    <>
+      <rect x="5" y="4" width="22" height="25" fill="#FFE082" stroke={L} strokeWidth="2" />
+      <rect x="5" y="4" width="22" height="6" fill={A} stroke={L} strokeWidth="2" />
+      <rect x="9" y="14" width="14" height="2" fill={L} />
+      <rect x="9" y="19" width="14" height="2" fill={L} />
+      <rect x="9" y="24" width="8" height="2" fill={L} />
+    </>
+  ),
+  blog: (
+    <>
+      <path d="M6 3h20v26H6z" fill={P} stroke={L} strokeWidth="2" />
+      <rect x="10" y="7" width="12" height="5" fill={A} />
+      <rect x="10" y="15" width="12" height="2" fill={L} />
+      <rect x="10" y="19" width="12" height="2" fill={L} />
+      <rect x="10" y="23" width="7" height="2" fill={L} />
+    </>
+  ),
+  product: (
+    <>
+      <rect x="4" y="4" width="24" height="24" rx="6" fill={T} stroke={L} strokeWidth="2" />
+      <path d="M13 10l9 6-9 6z" fill={P} stroke={L} strokeWidth="2" strokeLinejoin="round" />
+    </>
+  ),
+  guestbook: (
+    <>
+      <path d="M3 7h12v20H3zM17 7h12v20H17z" fill={P} stroke={L} strokeWidth="2" />
+      <rect x="6" y="11" width="6" height="2" fill={L} />
+      <rect x="6" y="16" width="6" height="2" fill={L} />
+      <path d="M23 20l-3-3a2 2 0 0 1 3-2.5 2 2 0 0 1 3 2.5z" fill={A} />
+    </>
+  ),
+  model: (
+    <>
+      <path d="M16 3l11 6v14l-11 6-11-6V9z" fill={T} stroke={L} strokeWidth="2" strokeLinejoin="round" />
+      <path d="M5 9l11 6 11-6M16 15v14" fill="none" stroke={L} strokeWidth="2" />
+      <path d="M16 15l11-6-11-6-11 6z" fill={A} stroke={L} strokeWidth="2" strokeLinejoin="round" />
+    </>
+  ),
+  apps: (
+    <>
+      <path d="M3 7h10l3 3h13v17H3z" fill={Y} stroke={L} strokeWidth="2" />
+      <rect x="8" y="14" width="6" height="5" fill={A} />
+      <rect x="17" y="14" width="6" height="5" fill={T} />
+      <rect x="8" y="21" width="6" height="4" fill={T} />
+      <rect x="17" y="21" width="6" height="4" fill={A} />
+    </>
+  ),
+  share: (
+    <path
+      d="M13 8H5v19h19v-8M16 18C16 11 20 8 27 8M22 3l5 5-5 5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="square"
+    />
   ),
   reload: (
     <path

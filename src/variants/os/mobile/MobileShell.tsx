@@ -4,13 +4,14 @@ import { useEffect, useRef } from 'react'
 import { AnimatePresence, m, useDragControls, useMotionValue } from 'motion/react'
 import { AppView } from '../apps/registry'
 import { CopyButton } from '../apps/common'
-import { HOME_APPS, META, TAB_APPS } from '../appmeta'
+import { HOME_APPS, META, needsSpotify, TAB_APPS } from '../appmeta'
 import { useClock } from '../hooks'
 import { Icon, ShortcutBadge } from '../icons'
 import { Pic } from '../Pic'
 import { useOS } from '../store'
 import type { WinState } from '../types'
 import { resumeFileName, social } from '../util'
+import { WinIcon } from '../shell/WinIcon'
 import { Wallpaper } from '../shell/Wallpaper'
 import styles from '../os.module.css'
 import ui from '../apps/apps.module.css'
@@ -55,7 +56,14 @@ function Sheet({ win, top }: { win: WinState; top: boolean }) {
           Back
         </button>
         <h2 className={styles.sheetTitle}>{title}</h2>
-        <span />
+        <button
+          type="button"
+          className={styles.sheetShare}
+          onClick={() => os.share(win.app, win.props)}
+          aria-label={`Share link to ${title}`}
+        >
+          <Icon name="share" size={22} />
+        </button>
       </div>
       <div className={styles.sheetBody}>
         <AppView win={win} active={top} hidden={!top} />
@@ -166,11 +174,12 @@ export function MobileShell({ stagger }: { stagger: boolean }) {
         </section>
 
         <nav className={styles.homeGrid} aria-label="Apps">
-          {HOME_APPS.map((a, i) => (
+          {HOME_APPS.filter((a) => needsSpotify(a, data)).map((a, i) => (
             <m.button
               key={a}
               type="button"
               className={styles.hicon}
+              style={{ '--i': i } as React.CSSProperties}
               data-home-app={a}
               initial={stagger ? { opacity: 0, y: 8 } : false}
               animate={{ opacity: 1, y: 0 }}
@@ -181,17 +190,41 @@ export function MobileShell({ stagger }: { stagger: boolean }) {
               {META[a].label}
             </m.button>
           ))}
-          <m.button
-            type="button"
-            className={styles.hicon}
-            initial={stagger ? { opacity: 0, y: 8 } : false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: stagger ? 0.15 + HOME_APPS.length * 0.04 : 0 }}
-            onClick={() => os.open('files', { path: 'versions' })}
-          >
-            <Icon name="html" size={56} />
-            Old versions
-          </m.button>
+          {(
+            [
+              ['applications', 'apps', 'Applications'],
+              ['media', 'image', 'Media'],
+              ['versions', 'html', 'Old versions'],
+            ] as const
+          ).map(([path, icon, label], i) => (
+            <m.button
+              key={path}
+              type="button"
+              className={styles.hicon}
+              initial={stagger ? { opacity: 0, y: 8 } : false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: stagger ? 0.15 + (HOME_APPS.length + i) * 0.04 : 0 }}
+              onClick={() => os.open('files', { path })}
+            >
+              <Icon name={icon} size={56} />
+              {label}
+            </m.button>
+          ))}
+          {data.projects
+            .filter((p) => p.featured)
+            .slice(0, 8)
+            .map((p) => (
+              <button
+                key={p.slug}
+                type="button"
+                className={styles.hicon}
+                aria-label={`${p.title}, app`}
+                onClick={() => os.open('product', { slug: p.slug })}
+              >
+                <WinIcon app="product" props={{ slug: p.slug }} size={56} />
+                {p.title}
+              </button>
+            ))}
           {ig && (
             <a className={styles.hicon} href={ig} target="_blank" rel="noopener noreferrer" aria-label="Instagram, opens in a new tab">
               <span style={{ position: 'relative', display: 'inline-flex' }}>

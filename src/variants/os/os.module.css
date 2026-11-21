@@ -133,6 +133,12 @@
   width: 100%;
   height: auto;
 }
+.wall[data-3d='true'] .wallLayer {
+  opacity: 0;
+}
+.wallLayer {
+  transition: opacity 0.6s linear;
+}
 .hillFar {
   fill: color-mix(in srgb, var(--desk-3) 62%, var(--desk-2));
 }
@@ -400,9 +406,19 @@
   outline: 2px dotted var(--on-desk);
   outline-offset: -2px;
 }
+.dicon {
+  transition: translate 0.18s var(--ease-out);
+}
 .dicon.dragging {
   z-index: 5;
   opacity: 0.85;
+  transition: none;
+  cursor: grabbing;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dicon {
+    transition: none;
+  }
 }
 .badge {
   position: absolute;
@@ -1393,4 +1409,227 @@
 .plain *::before,
 .plain *::after {
   font-variant-ligatures: none !important;
+}
+
+/* Toast, share buttons */
+.toastHost {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(104px + env(safe-area-inset-bottom));
+  z-index: 9800;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.toast {
+  padding: 10px 16px;
+  border: 2px solid var(--chrome-ink);
+  border-radius: 6px;
+  background: var(--chrome-hi);
+  color: var(--chrome-ink);
+  font: 700 14px var(--pixel);
+  box-shadow: var(--bevel), 3px 3px 0 rgba(0, 0, 0, 0.35);
+  animation: toastIn 0.22s var(--ease-out) both;
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+.sheetShare {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--chrome-hi);
+}
+.sheetShare:focus-visible {
+  outline-color: var(--chrome-hi);
+}
+
+/* Installed product icons (CMS app icon or cover) */
+.appImg {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  border: 2px solid var(--ic-line);
+  border-radius: 22%;
+  background: var(--chrome);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+/* Icons tilt in 3D toward the pointer (desktop, motion allowed). Vars are set from DesktopIcons. */
+@media (hover: hover) and (pointer: fine) {
+  .root[data-reduced='false'] .dicon > svg,
+  .root[data-reduced='false'] .dicon > .appImg {
+    transition: transform 0.14s var(--ease-out);
+    transform: perspective(260px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
+  }
+}
+
+/* ───────── rm -rf / : the wipe, then "No bootable device found" ───────── */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.doomScreen {
+  position: absolute;
+  inset: 0;
+  z-index: 9900;
+  display: flex;
+  align-items: flex-start;
+  padding: clamp(16px, 5vw, 56px);
+  overflow: auto;
+  background: #000;
+  color: #c9c9c9;
+  font: 500 clamp(13px, 1.5vw + 8px, 17px) / 1.5 var(--mono);
+  animation: fadeIn 0.5s linear both;
+}
+.doomLines p {
+  margin: 0;
+}
+.doomLines code {
+  color: #ff6b35;
+  font: inherit;
+}
+.doomH {
+  margin: 0;
+  color: #fff;
+  font: 700 clamp(18px, 2.4vw + 10px, 28px) / 1.3 var(--mono);
+}
+.doomCursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  background: #c9c9c9;
+  animation: bootBlink 1s steps(1) infinite;
+}
+.doomCount {
+  margin-top: 6px !important;
+  color: #ffd166;
+  font-variant-numeric: tabular-nums;
+}
+.doomSnark {
+  min-height: 3em;
+  margin-top: 14px !important;
+  color: #8fbf8a;
+}
+.doomScreen[data-reduced='true'] .doomCursor {
+  animation: none;
+}
+.doomFx {
+  position: absolute;
+  inset: 0;
+  z-index: 9800;
+  pointer-events: none;
+  opacity: 0;
+}
+.doomFx[data-step='3'] {
+  opacity: 1;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 5px),
+    linear-gradient(90deg, rgba(255, 0, 60, 0.12), transparent 30%, rgba(0, 255, 220, 0.12));
+  mix-blend-mode: normal;
+  animation: doomBars 0.16s steps(2) infinite;
+}
+.doomFx[data-step='4'] {
+  opacity: 1;
+  background: #000;
+  transition: opacity 0.7s linear;
+}
+@keyframes doomBars {
+  50% {
+    background-position: 0 3px, 6px 0;
+    transform: translateX(3px);
+  }
+}
+@keyframes doomGone {
+  to {
+    opacity: 0;
+    scale: 0;
+    rotate: 18deg;
+  }
+}
+@keyframes doomGlitch {
+  0% {
+    translate: 0 0;
+    filter: none;
+    clip-path: inset(0);
+  }
+  25% {
+    translate: -8px 2px;
+    filter: hue-rotate(50deg) contrast(1.5);
+    clip-path: inset(8% 0 52% 0);
+  }
+  50% {
+    translate: 10px -3px;
+    filter: hue-rotate(-70deg) saturate(2.4);
+    clip-path: inset(40% 0 10% 0);
+  }
+  75% {
+    translate: -4px 4px;
+    filter: invert(0.15) contrast(1.4);
+    clip-path: inset(0 0 30% 0);
+  }
+  100% {
+    translate: 6px 0;
+    filter: hue-rotate(20deg);
+    clip-path: inset(0);
+  }
+}
+@keyframes doomDockGone {
+  to {
+    scale: 0.05 1;
+    translate: 0 140%;
+    opacity: 0;
+  }
+}
+.root[data-doom-step='2'] .dicon,
+.root[data-doom-step='3'] .dicon,
+.root[data-doom-step='4'] .dicon,
+.root[data-doom-step='2'] .hicon,
+.root[data-doom-step='3'] .hicon,
+.root[data-doom-step='4'] .hicon {
+  animation: doomGone 0.4s steps(5) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.root[data-doom-step='3'] .dockWrap,
+.root[data-doom-step='4'] .dockWrap,
+.root[data-doom-step='3'] .tabbar,
+.root[data-doom-step='4'] .tabbar {
+  animation: doomDockGone 0.55s ease-in both;
+}
+.root[data-doom-step='3'] .stage,
+.root[data-doom-step='4'] .stage {
+  animation: doomGlitch 0.2s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .root[data-doom-step='3'] .stage,
+  .root[data-doom-step='4'] .stage,
+  .doomFx[data-step='3'] {
+    animation: none;
+  }
 }

@@ -5,7 +5,9 @@ import { isAppId, META } from '../appmeta'
 import type { useOS } from '../store'
 import { ACCENTS, WALLS, type Accent, type AppId, type Wall } from '../types'
 import { download, levelWord, monthYear, range, resumeFileName, slugify, social } from '../util'
+import { triggerDoom } from '@/app/actions/doom'
 import { findVersion, modifiedLabel, VERSION_FILES } from '../versions'
+import { ResumeView } from './resume'
 import ui from '../apps/apps.module.css'
 
 type OS = ReturnType<typeof useOS>
@@ -18,6 +20,10 @@ export type Ctx = {
   history: string[]
   clear: () => void
   exec: (line: string) => void
+  /** Ask for a hidden line of input, like `sudo`. Resolves null when cancelled (Ctrl+C). */
+  askPassword: (prompt: string) => Promise<string | null>
+  /** Print `removed '<path>'` lines fast, for the rm -rf / easter egg. */
+  wipe: (paths: string[]) => void
 }
 export type Cmd = {
   desc: string
@@ -88,8 +94,15 @@ export function buildFS(data: SiteData, os: OS): Record<string, Node[]> {
     { name: 'photos', dir: true },
     { name: 'games', dir: true },
     { name: 'hardware', dir: true },
+    { name: 'blog', dir: true },
+    { name: 'notes', dir: true },
     { name: 'old_versions', dir: true },
   ]
+  root.push({
+    name: 'resume.txt',
+    open: () => os.open(s.resumeUrl ? 'resume' : 'about'),
+    cat: () => <ResumeView data={data} />,
+  })
   if (s.resumeUrl)
     root.push({
       name: 'resume.pdf',
@@ -144,6 +157,31 @@ export function buildFS(data: SiteData, os: OS): Record<string, Node[]> {
         </Lines>
       ),
     })),
+    blog: data.posts
+      .filter((p) => p.kind === 'blog')
+      .map((p) => ({
+        name: `${p.slug}.md`,
+        open: () => os.open('blog', { slug: p.slug }),
+        cat: () => (
+          <Lines>
+            <div className={ui.tHead}># {p.title}</div>
+            <Dim>{[monthYear(p.publishedAt), p.tags.join(', ')].filter(Boolean).join(' · ')}</Dim>
+            <div className={ui.tWrap}>{`\n${p.body}`}</div>
+          </Lines>
+        ),
+      })),
+    notes: data.posts
+      .filter((p) => p.kind === 'note')
+      .map((p) => ({
+        name: `${p.slug}.md`,
+        open: () => os.open('notes', { slug: p.slug }),
+        cat: () => (
+          <Lines>
+            <div className={ui.tHead}># {p.title}</div>
+            <div className={ui.tWrap}>{p.body}</div>
+          </Lines>
+        ),
+      })),
     old_versions: VERSION_FILES.map((v) => ({
       name: v.file,
       open: () => os.open('browser', { v: v.key }),
@@ -225,6 +263,14 @@ const APP_ALIASES: Record<string, AppId> = {
   resume: 'resume',
   settings: 'settings',
   preferences: 'settings',
+  notes: 'notes',
+  blog: 'blog',
+  writing: 'blog',
+  spotify: 'spotify',
+  music: 'spotify',
+  guestbook: 'guestbook',
+  apps: 'files',
+  applications: 'files',
 }
 
 const findProject = (d: SiteData, q: string) => {
@@ -260,6 +306,67 @@ const FORTUNES = [
   'The best bug report comes with a reproduction.',
 ]
 
+/* ───────── rm -rf / (the doomsday easter egg) ───────── */
+/** GNU's own failsafe message. */
+const FAILSAFE = (
+  <Lines>
+    <div>rm: it is dangerous to operate recursively on &apos;/&apos;</div>
+    <div>rm: use --no-preserve-root to override this failsafe</div>
+  </Lines>
+)
+
+/** Understands `-rf`, `-fr`, `-r -f`, `--recursive --force`, `--no-preserve-root`, in any order. */
+function parseRm(args: string[]) {
+  let recursive = false
+  let noPreserve = false
+  const targets: string[] = []
+  for (const a of args) {
+    if (a === '--no-preserve-root') noPreserve = true
+    else if (a === '--recursive') recursive = true
+    else if (a.startsWith('--')) continue
+    else if (a.startsWith('-') && a.length > 1) {
+      if (/[rR]/.test(a)) recursive = true
+    } else targets.push(a)
+  }
+  return { recursive, noPreserve, root: recursive && targets.some((t) => t === '/' || t === '/*') }
+}
+
+/** Real FunkyOS names first, then the system folders. */
+function wipePaths(data: SiteData, os: OS): string[] {
+  const fs = buildFS(data, os)
+  const out: string[] = []
+  for (const [dir, nodes] of Object.entries(fs))
+    for (const n of nodes) if (!n.dir) out.push(`/${dir ? `${dir}/` : ''}${n.name}`)
+  for (const v of data.settings.socials) out.push(`/home/funky/.links/${slugify(v.label)}.url`)
+  const sys = [
+    '/boot/vmlinuz-funky', '/boot/initrd.img', '/boot/grub/grub.cfg', '/etc/funkyos.conf', '/etc/passwd',
+    '/etc/hostname', '/usr/bin/node', '/usr/bin/git', '/usr/bin/coffee', '/usr/lib/libportfolio.so',
+    '/var/log/syslog', '/var/www/codedbyfunky/index.html', '/var/lib/payload/db', '/home/funky/.bashrc',
+    '/home/funky/.ssh/id_ed25519', '/lib/x86_64-linux-gnu/libc.so.6', '/bin/bash', '/bin/ls', '/sbin/init',
+  ]
+  return [...out, ...sys]
+}
+
+/** Ask the server for permission, then run the scripted wipe. The server enforces the guardrails. */
+async function startWipe(ctx: Ctx): Promise<ReactNode> {
+  const r = await triggerDoom()
+  if (!r.ok) {
+    if (r.reason === 'disabled')
+      return 'sudo: visitor is not in the sudoers file. This incident will be reported.'
+    if (r.reason === 'cooldown')
+      return (
+        <Lines>
+          <div>rm: cannot remove &apos;/&apos;: the root directory was already removed today.</div>
+          <Dim>Backups are restoring. Try again tomorrow.</Dim>
+        </Lines>
+      )
+    return 'sudo: too many attempts. Try again in a few minutes.'
+  }
+  ctx.os.doomBegin(r.until, r.now)
+  ctx.wipe(wipePaths(ctx.data, ctx.os))
+  return undefined
+}
+
 /* ───────── commands ───────── */
 export const COMMANDS: Record<string, Cmd> = {
   help: {
@@ -283,7 +390,10 @@ export const COMMANDS: Record<string, Cmd> = {
               ))}
           </tbody>
         </table>
-        <Dim>Tab completes. ↑/↓ history. Ctrl+L clears. Try `sudo hire funky`.</Dim>
+        <Dim>
+          Tab completes. ↑/↓ history. Ctrl+L clears. Try `sudo hire funky`. Resume: `resume`,
+          `cat resume.txt`, `whoami --verbose`.
+        </Dim>
       </Lines>
     ),
   },
@@ -301,13 +411,17 @@ export const COMMANDS: Record<string, Cmd> = {
     ),
   },
   whoami: {
-    desc: 'one-line intro',
-    run: (_a, { data }) => (
-      <Lines>
-        {data.settings.name} ({data.settings.handle}):{' '}
-        {data.settings.tagline || data.settings.shortBio}
-      </Lines>
-    ),
+    desc: 'one-line intro (add --verbose for the full resume)',
+    usage: 'whoami [--verbose]',
+    run: (args, { data }) =>
+      args.includes('--verbose') || args.includes('-v') ? (
+        <ResumeView data={data} />
+      ) : (
+        <Lines>
+          {data.settings.name} ({data.settings.handle}):{' '}
+          {data.settings.tagline || data.settings.shortBio}
+        </Lines>
+      ),
   },
   neofetch: {
     desc: 'system info for this site',
@@ -406,8 +520,13 @@ export const COMMANDS: Record<string, Cmd> = {
         return 'opening Old Versions…'
       }
       const app = APP_ALIASES[lc(q)] ?? (isAppId(lc(q)) ? (lc(q) as AppId) : null)
-      if (app && app !== 'preview' && app !== 'game') {
-        os.open(app, app === 'files' ? { path: 'projects' } : {})
+      if (app && app !== 'preview' && app !== 'game' && app !== 'product' && app !== 'model') {
+        os.open(
+          app,
+          app === 'files'
+            ? { path: lc(q) === 'apps' || lc(q) === 'applications' ? 'applications' : 'projects' }
+            : {},
+        )
         return `opening ${META[app].label}…`
       }
       const ver = findVersion(q)
@@ -635,13 +754,18 @@ export const COMMANDS: Record<string, Cmd> = {
     },
   },
   resume: {
-    desc: 'download the resume PDF',
-    run: (_a, { data }) => {
+    desc: 'print my resume (`resume --pdf` downloads the PDF)',
+    usage: 'resume [--pdf]',
+    run: (args, { data }) => {
       const u = data.settings.resumeUrl
-      if (!u) return 'no resume uploaded yet. Try `contact`.'
-      const name = resumeFileName(u, data.settings.name)
-      download(u, name)
-      return `downloading ${name}…`
+      const name = u ? resumeFileName(u, data.settings.name) : ''
+      const get = () => u && download(u, name)
+      if (args.some((a) => ['--pdf', '--download', '-d', 'pdf'].includes(lc(a)))) {
+        if (!u) return 'no resume PDF uploaded yet. Run `resume` to read it here.'
+        get()
+        return `downloading ${name}…`
+      }
+      return <ResumeView data={data} download={u ? get : undefined} />
     },
   },
   theme: {
@@ -693,7 +817,16 @@ export const COMMANDS: Record<string, Cmd> = {
   sudo: {
     desc: 'run as admin (try it)',
     usage: 'sudo hire funky',
-    run: (args, { os }) => {
+    run: async (args, ctx) => {
+      const { os } = ctx
+      if (args[0] === 'rm') {
+        const r = parseRm(args.slice(1))
+        if (!r.root) return COMMANDS.rm.run(args.slice(1), ctx)
+        if (!r.noPreserve) return FAILSAFE
+        const pw = await ctx.askPassword('[sudo] password for visitor:')
+        if (pw === null) return 'sudo: a password is required'
+        return startWipe(ctx)
+      }
       const line = args.join(' ').toLowerCase()
       if (line === 'hire funky' || line === 'hire me') {
         os.fireConfetti()
@@ -721,10 +854,23 @@ export const COMMANDS: Record<string, Cmd> = {
   },
   rm: {
     desc: 'remove files (read-only)',
-    run: (args) =>
-      args.join(' ').includes('/')
+    run: (args) => {
+      const r = parseRm(args)
+      if (r.root && r.recursive) {
+        if (!r.noPreserve) return FAILSAFE
+        return (
+          <Lines>
+            <div>rm: cannot remove &apos;/bin&apos;: Permission denied</div>
+            <div>rm: cannot remove &apos;/boot&apos;: Permission denied</div>
+            <div>rm: cannot remove &apos;/etc&apos;: Permission denied</div>
+            <Dim>you are not root. A very brave person would use sudo here.</Dim>
+          </Lines>
+        )
+      }
+      return args.join(' ').includes('/')
         ? 'nice try. FunkyOS is mounted read-only.'
-        : 'rm: this filesystem is read-only.',
+        : 'rm: this filesystem is read-only.'
+    },
   },
   vim: {
     desc: 'editor (no escape)',

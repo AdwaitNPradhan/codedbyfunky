@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { animate, m, useMotionValue } from 'motion/react'
+import { getInstagramFeed } from '@/app/actions/instagram'
+import type { IgPost } from '@/lib/instagram'
 import { Pic } from '../Pic'
 import { useOS } from '../store'
 import type { AppProps } from '../types'
 import { clamp, monthYear } from '../util'
 import { Empty, Ext } from './common'
+import { InstagramFeed } from './InstagramFeed'
 import ui from './apps.module.css'
 
 export default function Photos({ props, active, hidden }: AppProps) {
@@ -15,6 +18,22 @@ export default function Photos({ props, active, hidden }: AppProps) {
   const ig = data.settings.instagram
   const igUrl = ig.url || data.settings.socials.find((s) => s.platform === 'instagram')?.url || ''
   const albums = useMemo(() => Array.from(new Set(data.photos.map((p) => p.series).filter(Boolean))), [data.photos])
+  // The Instagram feed (when a token is set and the API answers), else the CMS photo library.
+  const [feed, setFeed] = useState<{ state: 'loading' | 'ok' | 'none'; posts: IgPost[] }>({ state: 'loading', posts: [] })
+  const [source, setSource] = useState<'ig' | 'lib'>(props.photo ? 'lib' : 'ig')
+  useEffect(() => {
+    let off = false
+    getInstagramFeed()
+      .then((r) => !off && setFeed(r.ok && r.posts.length ? { state: 'ok', posts: r.posts } : { state: 'none', posts: [] }))
+      .catch(() => !off && setFeed({ state: 'none', posts: [] }))
+    return () => {
+      off = true
+    }
+  }, [])
+  useEffect(() => {
+    if (props.photo) setSource('lib')
+    else if (props.id) setSource('ig')
+  }, [props.photo, props.id])
   const [album, setAlbum] = useState('all')
   const list = useMemo(() => (album === 'all' ? data.photos : data.photos.filter((p) => p.series === album)), [album, data.photos])
   const [idx, setIdx] = useState<number | null>(null)
@@ -128,10 +147,32 @@ export default function Photos({ props, active, hidden }: AppProps) {
     else if (k === '0') resetZoom()
   }
 
-  if (data.photos.length === 0) return <Empty>No photos in the CMS yet.</Empty>
+  const showFeed = feed.state === 'ok' && (source === 'ig' || data.photos.length === 0)
+  if (data.photos.length === 0 && feed.state !== 'ok')
+    return feed.state === 'loading' ? (
+      <div className={ui.loading} role="status">
+        Loading photos…
+      </div>
+    ) : (
+      <Empty>No photos in the CMS yet.</Empty>
+    )
 
   return (
     <div className={ui.photos}>
+      {feed.state === 'ok' && data.photos.length > 0 && (
+        <div className={ui.igTabs} role="group" aria-label="Photo source">
+          <button type="button" aria-pressed={showFeed} onClick={() => setSource('ig')}>
+            Instagram
+          </button>
+          <button type="button" aria-pressed={!showFeed} onClick={() => setSource('lib')}>
+            Library
+          </button>
+        </div>
+      )}
+      {showFeed ? (
+        <InstagramFeed posts={feed.posts} openId={props.id} handle={ig.handle} url={igUrl} pitch={ig.pitch} />
+      ) : (
+      <>
       <div className={ui.toolbar}>
         <label className={ui.albumLabel}>
           <span className={ui.srOnly}>Album</span>
@@ -236,6 +277,8 @@ export default function Photos({ props, active, hidden }: AppProps) {
             </dl>
           )}
         </div>
+      )}
+      </>
       )}
     </div>
   )

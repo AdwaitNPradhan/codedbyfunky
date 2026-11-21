@@ -2,10 +2,10 @@
 
 import { useRef } from 'react'
 import { m, useMotionValue, useSpring, useTransform, type MotionValue } from 'motion/react'
-import { DOCK_APPS, iconOf, META } from '../appmeta'
-import { Icon } from '../icons'
+import { DOCK_APPS, idFor, META, needsSpotify } from '../appmeta'
+import { WinIcon } from './WinIcon'
 import { useOS } from '../store'
-import type { AppId, WinState } from '../types'
+import type { AppId, WinProps, WinState } from '../types'
 import styles from '../os.module.css'
 
 const SPRING = { stiffness: 320, damping: 24, mass: 0.7 }
@@ -15,6 +15,7 @@ function Slot({
   mag,
   label,
   app,
+  props,
   winId,
   win,
   onClick,
@@ -23,6 +24,7 @@ function Slot({
   mag: boolean
   label: string
   app: AppId
+  props?: WinProps
   winId?: string
   win?: WinState
   onClick: () => void
@@ -39,6 +41,8 @@ function Slot({
   )
   const scale = useSpring(raw, SPRING)
   const running = Boolean(win)
+  const os = useOS()
+  const target: WinProps = win?.props ?? props ?? (app === 'files' ? { path: 'projects' } : {})
   return (
     <div className={styles.dslot} ref={ref}>
       <m.div className={styles.ditem} style={{ scale: mag ? scale : 1 }}>
@@ -49,8 +53,15 @@ function Slot({
           data-dock-app={app}
           data-dock-win={winId}
           onClick={onClick}
+          onContextMenu={(e) => {
+            e.preventDefault()
+            os.openMenu(e.clientX, e.clientY - 70, [
+              { label: 'Open', onSelect: onClick },
+              { label: 'Share link', onSelect: () => os.share(app, target) },
+            ])
+          }}
         >
-          <Icon name={iconOf(app, win?.props)} size={48} />
+          <WinIcon app={app} props={target} size={48} />
         </button>
         {running && (
           <span
@@ -71,10 +82,13 @@ export function Dock() {
   const mouseX = useMotionValue(-9999)
   const mag = !os.reduced
   // Windows of apps that have no permanent dock slot get a temporary one, so a minimised window is never lost.
-  const extra = os.wins.filter((w) => !DOCK_APPS.includes(w.app))
+  // Featured products are installed apps pinned to the dock (not on narrow screens).
+  const pinned = os.area.w >= 900 ? os.data.projects.filter((p) => p.featured).slice(0, 3) : []
+  const pinnedIds = new Set(pinned.map((p) => idFor('product', { slug: p.slug })))
+  const extra = os.wins.filter((w) => !DOCK_APPS.includes(w.app) && !pinnedIds.has(w.id))
 
-  const toggle = (w: WinState | undefined, app: AppId) => {
-    if (!w) return os.open(app, app === 'files' ? { path: 'projects' } : {})
+  const toggle = (w: WinState | undefined, app: AppId, props?: WinProps) => {
+    if (!w) return os.open(app, props ?? (app === 'files' ? { path: 'projects' } : {}))
     if (w.minimized || os.activeId !== w.id) return os.focus(w.id)
     os.minimize(w.id)
   }
@@ -86,7 +100,7 @@ export function Dock() {
         onPointerMove={(e) => e.pointerType === 'mouse' && mouseX.set(e.clientX)}
         onPointerLeave={() => mouseX.set(-9999)}
       >
-        {DOCK_APPS.map((app) => (
+        {DOCK_APPS.filter((a) => needsSpotify(a, os.data)).map((app) => (
           <Slot
             key={app}
             mouseX={mouseX}
@@ -102,6 +116,24 @@ export function Dock() {
             }
           />
         ))}
+        {pinned.length > 0 && <span className={styles.dsep} aria-hidden="true" />}
+        {pinned.map((p) => {
+          const props = { slug: p.slug }
+          const w = os.wins.find((x) => x.id === idFor('product', props))
+          return (
+            <Slot
+              key={p.slug}
+              mouseX={mouseX}
+              mag={mag}
+              app="product"
+              props={props}
+              winId={idFor('product', props)}
+              label={p.title}
+              win={w}
+              onClick={() => toggle(w, 'product', props)}
+            />
+          )
+        })}
         {extra.length > 0 && <span className={styles.dsep} aria-hidden="true" />}
         {extra.map((w) => (
           <Slot

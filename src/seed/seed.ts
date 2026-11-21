@@ -10,6 +10,8 @@ export const CONTENT: CollectionSlug[] = [
   'hardware',
   'skills',
   'experience',
+  'posts',
+  'guestbook',
   'messages',
   'media',
 ]
@@ -96,6 +98,12 @@ export async function seed(payload: Payload, log = (m: string) => payload.logger
         followers: '12.4k',
         pitch: 'Street, monsoon and night photography. New frames every week — follow along.',
       },
+      spotify: {
+        url: 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M',
+        label: 'Coding playlist',
+      },
+      easterEggs: { doomsday: true },
+      guestbook: { autoApprove: false },
       seoTitle: 'Adwait Pradhan (funky) — engineer, photographer, tinkerer',
       seoDescription:
         'Portfolio of Adwait Pradhan: full-stack engineering, creative web, browser games, hardware builds and photography.',
@@ -472,8 +480,143 @@ export async function seed(payload: Payload, log = (m: string) => payload.logger
       },
     })
   }
+  log('seed: posts')
+  for (const [i, p] of DEMO_POSTS.entries()) {
+    await payload.create({
+      collection: 'posts',
+      overrideAccess: true,
+      data: {
+        ...p,
+        publishedAt: new Date(Date.now() - (i + 1) * 9 * 86_400_000).toISOString(),
+        order: i,
+        published: true,
+      },
+    })
+  }
   log('seed: done')
 }
+
+/** DEMO posts: 3 blog posts and 4 notes. Replace through the CMS. */
+export const DEMO_POSTS: {
+  kind: 'blog' | 'note'
+  title: string
+  slug: string
+  excerpt: string
+  tags: string[]
+  body: string
+}[] = [
+  {
+    kind: 'blog',
+    title: 'Why my portfolio is an operating system',
+    slug: 'why-an-operating-system',
+    excerpt: 'A portfolio is a pile of files. So I gave it a desktop, a dock and a terminal.',
+    tags: ['design', 'react', 'process'],
+    body: `A portfolio is a pile of files: projects, photos, games, a resume. A desktop is the oldest interface for a pile of files. So I built one.
+
+## The brief I gave myself
+
+- A visitor must learn who I am in **five seconds**.
+- Everything must work with a keyboard and on a phone.
+- It must stay fast. No loading screen longer than a song intro.
+
+## What I learned
+
+1. Windows are state, not DOM. Keep the geometry in motion values and commit on pointer-up.
+2. A fake OS needs real accessibility: roles, focus return, and a plain-page escape hatch.
+3. Jokes are a feature. Try \`sudo hire funky\` in the terminal.
+
+If you want to see the earlier designs, open the Old Versions folder.`,
+  },
+  {
+    kind: 'blog',
+    title: 'Shipping a tiny game every month',
+    slug: 'tiny-game-every-month',
+    excerpt: 'Eight browser games, one rule: a game must be fun in under ten seconds.',
+    tags: ['games', 'canvas', 'habit'],
+    body: `I set one rule for my browser games: **a player must smile in ten seconds**. If the first ten seconds are a menu, I cut the menu.
+
+## The loop
+
+1. Pick a verb (jump, stack, dodge).
+2. Make it feel good with sound and screen shake.
+3. Add one twist.
+4. Ship it before it gets clever.
+
+> Small games teach big lessons about input, timing and scope.
+
+Every game in the Games app shares one shell: pause, mute, best score and a reduced-motion mode.`,
+  },
+  {
+    kind: 'blog',
+    title: 'From breadboard to PCB: a weekend with an ESP32',
+    slug: 'breadboard-to-pcb',
+    excerpt: 'What broke, what I would redo, and the three tools I now never skip.',
+    tags: ['hardware', 'esp32', 'electronics'],
+    body: `My first board worked on the breadboard and died on the PCB. The cause was one missing **decoupling capacitor**.
+
+## Three tools I never skip now
+
+- A bench power supply with a current limit.
+- A cheap logic analyser.
+- A magnifier lamp. My eyes are not good at 0402 parts.
+
+## Checklist before ordering a board
+
+1. Check every footprint against the datasheet.
+2. Add test points for power and ground.
+3. Print the board at 1:1 on paper and place the parts on it.
+
+See the Lab app for the builds.`,
+  },
+  {
+    kind: 'note',
+    title: 'Groceries and a to-do',
+    slug: 'note-groceries',
+    excerpt: 'Coffee, oat milk, solder wire.',
+    tags: ['personal'],
+    body: `- Coffee beans
+- Oat milk
+- Solder wire (0.6 mm)
+- Flux pen
+
+**Also:** back up the photo library.`,
+  },
+  {
+    kind: 'note',
+    title: 'Ideas for the next game',
+    slug: 'note-next-game',
+    excerpt: 'A rhythm game played with one key. A gravity puzzle. A pixel fishing game.',
+    tags: ['games', 'ideas'],
+    body: `1. A rhythm game played with **one key**.
+2. A gravity puzzle where the level rotates.
+3. Pixel fishing with a calm soundtrack.
+
+Pick the one that is fun in ten seconds.`,
+  },
+  {
+    kind: 'note',
+    title: 'CSS tricks I keep forgetting',
+    slug: 'note-css-tricks',
+    excerpt: 'text-wrap: balance, container queries, and the :where() trick.',
+    tags: ['css', 'cheatsheet'],
+    body: `- \`text-wrap: balance\` on headings.
+- Container queries beat media queries for components.
+- \`:where()\` has zero specificity. Use it for base styles.
+- Never write \`transition: all\`.`,
+  },
+  {
+    kind: 'note',
+    title: 'Photo walk checklist',
+    slug: 'note-photo-walk',
+    excerpt: 'Charge batteries, clean the lens, go at golden hour.',
+    tags: ['photography', 'checklist'],
+    body: `- Charge two batteries
+- Clean the lens
+- Format the card
+- Go out at **golden hour**
+- Shoot 50 frames, keep 5`,
+  },
+]
 
 /** Test login used during the build phase. Wiped with `npm run seed -- --wipe`. */
 export async function ensureTestEditor(payload: Payload, email: string, password: string) {

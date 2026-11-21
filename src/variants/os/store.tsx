@@ -15,8 +15,10 @@ import { useReducedMotion } from 'motion/react'
 import type { SiteData } from '@/lib/types'
 import { DOCK_RESERVE, idFor, MENU_H, META } from './appmeta'
 import { setSoundEnabled, sfx } from './sound'
+import { resolveLaunch, shareUrl } from './deeplink'
+import type { MenuItem } from './shell/MenuBar'
 import { isVersionKey } from './versions'
-import { clamp, safeParse, store } from './util'
+import { clamp, copyText, safeParse, store } from './util'
 import {
   DEFAULT_SETTINGS,
   type AppId,
@@ -27,6 +29,16 @@ import {
 } from './types'
 
 export type Area = { w: number; h: number }
+export type Doom = {
+  phase: 'idle' | 'wipe' | 'dead'
+  /** 0 = text scroll, 1 = windows close, 2 = icons vanish, 3 = dock collapses and the screen glitches, 4 = black. */
+  step: number
+  /** When the system comes back (server clock, ms). */
+  until: number
+  /** Server clock minus this browser's clock. */
+  skew: number
+}
+const DOOM_IDLE: Doom = { phase: 'idle', step: 0, until: 0, skew: 0 }
 type State = { wins: WinState[]; z: number }
 
 type Action =
@@ -49,6 +61,7 @@ type Action =
   | { t: 'clamp'; area: Area }
   | { t: 'cascade'; area: Area }
   | { t: 'closeAll' }
+  | { t: 'closeOthers'; id: string }
 
 const fit = (g: Geo, a: Area): Geo => {
   const w = Math.min(g.w, a.w)
@@ -113,6 +126,8 @@ function reducer(s: State, a: Action): State {
       return { ...s, wins: s.wins.filter((w) => w.id !== a.id) }
     case 'closeAll':
       return { ...s, wins: [] }
+    case 'closeOthers':
+      return { ...s, wins: s.wins.filter((w) => w.id === a.id) }
     case 'focus': {
       const cur = s.wins.find((w) => w.id === a.id)
       if (!cur) return s
@@ -231,6 +246,19 @@ type OS = {
   busy: boolean
   plain: () => void
   external: (url: string) => void
+  /** The terminal "rm -rf /" easter egg. `phase` wipe = the scripted wipe, dead = the no-boot-device screen. */
+  doom: Doom
+  doomBegin: (until: number, serverNow: number) => void
+  doomDead: (until: number, serverNow: number) => void
+  doomRestore: () => void
+  /** Share a deep link to a window: system share sheet where it exists, else copy + toast. */
+  share: (app: AppId, props?: WinProps) => void
+  toast: { id: number; text: string } | null
+  showToast: (text: string) => void
+  /** One context menu at a time, drawn by the desktop. */
+  menu: { x: number; y: number; items: MenuItem[] } | null
+  openMenu: (x: number, y: number, items: MenuItem[]) => void
+  closeMenu: () => void
 }
 
 const Ctx = createContext<OS | null>(null)
@@ -275,6 +303,10 @@ export function OSProvider({
   const [confetti, setConfetti] = useState(0)
   const [shuttingDown, setShuttingDown] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [toast, setToast] = useState<{ id: number; text: string } | null>(null)
+  const toastT = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const [doom, setDoom] = useState<Doom>(DOOM_IDLE)
+  const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null)
   const busyT = useRef<ReturnType<typeof setTimeout>>(undefined)
   const sysReduced = useReducedMotion()
   const reduced = Boolean(sysReduced) || settings.reduceMotion
@@ -328,6 +360,9 @@ export function OSProvider({
 
   const open = useCallback(
     (app: AppId, props: WinProps = {}) => {
+      // These windows are keyed by slug and cannot open without one.
+      if ((app === 'preview' || app === 'product' || app === 'game' || app === 'model') && !props.slug)
+        return
       // A browser window needs a version. Without one, show the Old Versions folder.
       if (app === 'browser' && !isVersionKey(props.v)) {
         app = 'files'
@@ -386,6 +421,74 @@ export function OSProvider({
   const external = useCallback((url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer')
   }, [])
+  const doomBegin = useCallback(
+    (until: number, serverNow: number) =>
+      setDoom({ phase: 'wipe', step: 0, until, skew: serverNow - Date.now() }),
+    [],
+  )
+  const doomDead = useCallback(
+    (until: number, serverNow: number) => {
+      dispatch({ t: 'closeAll' })
+      setDoom({ phase: 'dead', step: 4, until, skew: serverNow - Date.now() })
+    },
+    [],
+  )
+  const doomRestore = useCallback(() => {
+    dispatch({ t: 'closeAll' })
+    setDoom(DOOM_IDLE)
+  }, [])
+  // The scripted wipe. Times are from the moment the password was entered.
+  const reducedRef = useRef(reduced)
+  reducedRef.current = reduced
+  useEffect(() => {
+    if (doom.phase !== 'wipe') return
+    const at = (ms: number, fn: () => void) => setTimeout(fn, ms)
+    const step = (n: number) => () => setDoom((d) => (d.phase === 'wipe' ? { ...d, step: n } : d))
+    const t = reducedRef.current
+      ? [at(150, step(4)), at(900, () => doomDead(doom.until, Date.now() + doom.skew))]
+      : [
+          at(1800, () => (dispatch({ t: 'closeOthers', id: 'terminal' }), step(1)())),
+          at(2900, step(2)),
+          at(3800, step(3)),
+          at(5300, step(4)),
+          at(6100, () => doomDead(doom.until, Date.now() + doom.skew)),
+        ]
+    return () => t.forEach(clearTimeout)
+    // The plan starts once per wipe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doom.phase])
+  const showToast = useCallback((text: string) => {
+    clearTimeout(toastT.current)
+    setToast({ id: Date.now(), text })
+    toastT.current = setTimeout(() => setToast(null), 2600)
+  }, [])
+  const share = useCallback(
+    async (app: AppId, props: WinProps = {}) => {
+      const url = shareUrl(app, props)
+      const title = `${META[app].title(props, data)} · ${data.settings.name}`
+      const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> }
+      if (typeof nav.share === 'function') {
+        try {
+          await nav.share({ title, url })
+          return
+        } catch (e) {
+          if ((e as Error).name === 'AbortError') return // the visitor closed the sheet
+        }
+      }
+      showToast((await copyText(url)) ? 'Link copied' : 'Could not copy the link')
+    },
+    [data, showToast],
+  )
+  const openMenu = useCallback(
+    (x: number, y: number, items: MenuItem[]) =>
+      setMenu({
+        x: Math.max(4, Math.min(x, window.innerWidth - 230)),
+        y: Math.max(4, Math.min(y, window.innerHeight - 40 - items.length * 34)),
+        items,
+      }),
+    [],
+  )
+  const closeMenu = useCallback(() => setMenu(null), [])
   const fireConfetti = useCallback(() => setConfetti((n) => n + 1), [])
   const plain = useCallback(() => {
     history.pushState(null, '', '/os?plain=1')
@@ -402,7 +505,6 @@ export function OSProvider({
     if (started.current) return
     started.current = true
     const q = new URLSearchParams(window.location.search)
-    const app = q.get('app')
     const hash = window.location.hash
     const slug = hash.startsWith('#project-') ? decodeURIComponent(hash.slice(9)) : ''
     const openApp = (a: AppId, p: WinProps = {}) =>
@@ -415,23 +517,11 @@ export function OSProvider({
         area: areaRef.current,
         mobile,
       })
-    if (app && Object.hasOwn(META, app)) {
-      const path = q.get('path') || ''
-      const [section, item] = path.split('/')
-      if (app === 'files') {
-        openApp('files', { path: section || 'projects' })
-        if (item && section === 'projects') openApp('preview', { slug: item })
-      } else if (app === 'browser') {
-        const v = q.get('v') ?? ''
-        if (isVersionKey(v)) openApp('browser', { v })
-        else openApp('files', { path: 'versions' })
-      } else openApp(app as AppId, q.get('slug') ? { slug: q.get('slug')! } : {})
-    } else if (slug) {
-      openApp('preview', { slug })
-    } else if (stateRef.current.wins.length === 0 && !mobile) {
-      openApp('about')
-    }
-  }, [mobile])
+    const launches = resolveLaunch(q, data)
+    if (launches.length) launches.forEach((l) => openApp(l.app, l.props))
+    else if (slug && data.projects.some((p) => p.slug === slug)) openApp('preview', { slug })
+    else if (stateRef.current.wins.length === 0 && !mobile) openApp('about')
+  }, [mobile, data])
 
   // Deep link the focused case study as #project-<slug>.
   useEffect(() => {
@@ -476,6 +566,16 @@ export function OSProvider({
       busy,
       plain,
       external,
+      share,
+      toast,
+      showToast,
+      menu,
+      openMenu,
+      closeMenu,
+      doom,
+      doomBegin,
+      doomDead,
+      doomRestore,
     }),
     [
       data,
@@ -507,6 +607,16 @@ export function OSProvider({
       busy,
       plain,
       external,
+      share,
+      toast,
+      showToast,
+      menu,
+      openMenu,
+      closeMenu,
+      doom,
+      doomBegin,
+      doomDead,
+      doomRestore,
     ],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

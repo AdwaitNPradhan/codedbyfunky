@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { META } from '../appmeta'
+import { META, needsSpotify } from '../appmeta'
 import { Icon } from '../icons'
 import { useOS } from '../store'
 import type { AppId } from '../types'
@@ -48,9 +48,15 @@ export function Palette({ onClose }: { onClose: () => void }) {
         'terminal',
         'mail',
         'resume',
+        'notes',
+        'blog',
+        'spotify',
+        'guestbook',
         'settings',
       ] as AppId[]
-    ).forEach((a) => app(a))
+    )
+      .filter((a) => needsSpotify(a, data))
+      .forEach((a) => app(a))
     for (const p of data.projects)
       cmds.push({
         id: `p-${p.slug}`,
@@ -58,6 +64,14 @@ export function Palette({ onClose }: { onClose: () => void }) {
         hint: `${p.summary} ${p.stack.join(' ')}`,
         kind: 'project',
         run: () => os.open('preview', { slug: p.slug }),
+      })
+    for (const p of data.posts)
+      cmds.push({
+        id: `post-${p.slug}`,
+        label: p.title,
+        hint: `${p.excerpt} ${p.tags.join(' ')}`,
+        kind: p.kind === 'note' ? 'note' : 'blog',
+        run: () => os.open(p.kind === 'note' ? 'notes' : 'blog', { slug: p.slug }),
       })
     for (const v of VERSION_FILES)
       cmds.push({
@@ -89,6 +103,14 @@ export function Palette({ onClose }: { onClose: () => void }) {
         hint: `${h.summary} ${h.components.join(' ')}`,
         kind: 'lab',
         run: () => os.open('lab', { slug: h.slug }),
+      })
+    for (const h of data.hardware)
+      cmds.push({
+        id: `m-${h.slug}`,
+        label: `${h.title} in 3D`,
+        hint: 'model viewer board',
+        kind: '3d',
+        run: () => os.open('model', { slug: h.slug }),
       })
     for (const ph of data.photos)
       cmds.push({
@@ -124,6 +146,23 @@ export function Palette({ onClose }: { onClose: () => void }) {
         },
       })
     }
+    for (const p of data.projects)
+      cmds.push({
+        id: `app-${p.slug}`,
+        label: `${p.title} (app)`,
+        hint: `launch install application ${p.stack.join(' ')}`,
+        kind: 'application',
+        run: () => os.open('product', { slug: p.slug }),
+      })
+    const act = os.wins.find((w) => w.id === os.activeId)
+    if (act)
+      cmds.push({
+        id: 'a-share',
+        label: 'Share link to this window',
+        hint: 'copy link deep link',
+        kind: 'action',
+        run: () => os.share(act.app, act.props),
+      })
     cmds.push({
       id: 'a-hire',
       label: 'Hire me: send a message',

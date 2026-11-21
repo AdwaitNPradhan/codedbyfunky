@@ -1,5 +1,5 @@
 import type { GlobalConfig } from 'payload'
-import { anyone, loggedIn } from '../access'
+import { adminOnlyField, anyone, loggedIn } from '../access'
 import { revalidateGlobal } from '../hooks/revalidate'
 
 export const Site: GlobalConfig = {
@@ -121,6 +121,88 @@ export const Site: GlobalConfig = {
                   name: 'pitch',
                   type: 'textarea',
                   admin: { description: 'Why follow — shown next to the photo section' },
+                },
+                {
+                  name: 'accessToken',
+                  type: 'text',
+                  // Admin only, in every API. The public site and the page data never see it.
+                  access: { read: adminOnlyField, update: adminOnlyField },
+                  admin: {
+                    autoComplete: 'off',
+                    description:
+                      'Instagram API with Instagram Login: paste a long-lived access token (professional account). Shows your feed in the Photos app. The site renews it by itself every 7 days. Empty: falls back to the INSTAGRAM_ACCESS_TOKEN env var, then to the Photos collection.',
+                  },
+                  hooks: {
+                    // A new token starts a new age clock.
+                    beforeChange: [
+                      ({ value, previousValue, siblingData }) => {
+                        if (value && value !== previousValue)
+                          siblingData.tokenRefreshedAt = new Date().toISOString()
+                        return value
+                      },
+                    ],
+                  },
+                },
+                {
+                  name: 'tokenRefreshedAt',
+                  type: 'date',
+                  access: { read: adminOnlyField, update: adminOnlyField },
+                  admin: {
+                    readOnly: true,
+                    date: { pickerAppearance: 'dayAndTime' },
+                    description: 'Set by the site when the token is pasted or renewed.',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'spotify',
+              type: 'group',
+              admin: { description: 'Spotify app in FunkyOS. Shown only for a valid open.spotify.com link.' },
+              fields: [
+                {
+                  name: 'url',
+                  type: 'text',
+                  admin: {
+                    description:
+                      'https://open.spotify.com/(playlist|album|track|artist|episode|show)/<id>',
+                  },
+                },
+                { name: 'label', type: 'text', admin: { description: 'Optional window label' } },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Fun',
+          fields: [
+            {
+              name: 'easterEggs',
+              type: 'group',
+              fields: [
+                {
+                  name: 'doomsday',
+                  type: 'checkbox',
+                  defaultValue: true,
+                  admin: {
+                    description:
+                      'Terminal "rm -rf /" can blank FunkyOS for every visitor for 1 hour (once per 24 h). Untick to disable.',
+                  },
+                },
+              ],
+            },
+            {
+              name: 'guestbook',
+              type: 'group',
+              fields: [
+                {
+                  name: 'autoApprove',
+                  type: 'checkbox',
+                  defaultValue: false,
+                  admin: {
+                    description:
+                      'Off: new guestbook entries wait for you to tick "approved". On: they show at once.',
+                  },
                 },
               ],
             },

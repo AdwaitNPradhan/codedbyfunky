@@ -105,3 +105,36 @@ export function download(url: string, name: string) {
   a.click()
   a.remove()
 }
+
+/** Copy text to the clipboard. Falls back to a hidden textarea where the async API is missing. */
+export async function copyText(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    /* fall through to the legacy path */
+  }
+  const ta = document.createElement('textarea')
+  ta.value = text
+  ta.style.position = 'fixed'
+  ta.style.opacity = '0'
+  document.body.appendChild(ta)
+  ta.select()
+  let ok = false
+  try {
+    ok = document.execCommand('copy')
+  } catch {
+    /* ignore */
+  }
+  ta.remove()
+  return ok
+}
+
+const DATE = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' })
+export const fmtDate = (iso: string) => {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? '' : DATE.format(d)
+}
+export const readMinutes = (text: string) => Math.max(1, Math.round(text.split(/\s+/).length / 200))

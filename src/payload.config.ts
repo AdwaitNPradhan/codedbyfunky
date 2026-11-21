@@ -7,7 +7,8 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Messages } from './collections/Messages'
-import { Experience, Games, Hardware, Photos, Projects, Skills } from './collections/content'
+import { Experience, Games, Hardware, Photos, Posts, Projects, Skills } from './collections/content'
+import { Guestbook } from './collections/Guestbook'
 import { Site } from './globals/Site'
 import { seed } from './seed/seed'
 
@@ -27,7 +28,19 @@ export default buildConfig({
     meta: { titleSuffix: ' · codedbyfunky CMS' },
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [Projects, Photos, Games, Hardware, Skills, Experience, Media, Messages, Users],
+  collections: [
+    Projects,
+    Photos,
+    Games,
+    Hardware,
+    Skills,
+    Experience,
+    Posts,
+    Media,
+    Messages,
+    Guestbook,
+    Users,
+  ],
   globals: [Site],
   secret: process.env.PAYLOAD_SECRET || '',
   // Only our own origin may make credentialed calls.

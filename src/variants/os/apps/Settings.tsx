@@ -43,6 +43,10 @@ export default function Settings(_: AppProps) {
           Reduce motion
         </label>
         <label className={ui.check}>
+          <input type="checkbox" checked={s.wall3d} onChange={(e) => os.setSettings({ wall3d: e.target.checked })} />
+          3D wallpaper (desktop with a mouse; off on phones and with reduced motion)
+        </label>
+        <label className={ui.check}>
           <input type="checkbox" checked={s.sound} onChange={(e) => os.setSettings({ sound: e.target.checked })} />
           Sound effects (off by default)
         </label>
@@ -52,7 +56,7 @@ export default function Settings(_: AppProps) {
         <button type="button" className={ui.btn} onClick={os.plain}>
           Switch to plain page
         </button>
-        <button type="button" className={ui.btn} onClick={() => os.setSettings({ wall: 'teal', accent: 'orange', reduceMotion: false, sound: false })}>
+        <button type="button" className={ui.btn} onClick={() => os.setSettings({ wall: 'teal', accent: 'orange', reduceMotion: false, sound: false, wall3d: true })}>
           Reset
         </button>
       </div>

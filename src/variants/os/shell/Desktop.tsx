@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'motion/react'
+import dynamic from 'next/dynamic'
 import { ACCENTS, WALLS } from '../types'
+import { canRunWallpaper3D } from '../hooks'
+import { ICON_EVENT } from './DesktopIcons'
 import { isTypingTarget } from '../util'
 import { useOS } from '../store'
 import { MenuList, MenuBar, type MenuItem } from './MenuBar'
@@ -12,6 +15,8 @@ import { Palette } from './Palette'
 import { Wallpaper } from './Wallpaper'
 import { Window, type SnapSide } from './Window'
 import styles from '../os.module.css'
+
+const Wallpaper3D = dynamic(() => import('./Wallpaper3D'), { ssr: false })
 
 const CONFETTI = ['#ff6b35', '#ffd166', '#a8ff9e', '#ece7da', '#5ee0a0']
 
@@ -52,9 +57,18 @@ function Confetti({ n }: { n: number }) {
 export function Desktop({ stagger }: { stagger: boolean }) {
   const os = useOS()
   const [snap, setSnap] = useState<SnapSide>(null)
-  const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null)
   const [showConfetti, setShowConfetti] = useState(0)
   const lastConfetti = useRef(0)
+
+  // 3D wallpaper: only after first paint and a short idle, only when the device can take it.
+  const want3d = os.settings.wall3d && !os.reduced && !os.mobile
+  const [wall3d, setWall3d] = useState(false)
+  useEffect(() => {
+    if (!want3d) return setWall3d(false)
+    const t = setTimeout(() => setWall3d(canRunWallpaper3D()), 1800)
+    return () => clearTimeout(t)
+  }, [want3d])
+  const covered = os.wins.some((w) => w.maximized && !w.minimized)
 
   useEffect(() => {
     if (os.confetti && os.confetti !== lastConfetti.current && !os.reduced) {
@@ -84,25 +98,27 @@ export function Desktop({ stagger }: { stagger: boolean }) {
         return
       }
       if (e.key === 'Escape' && !e.defaultPrevented) {
-        if (ctx) return setCtx(null)
+        if (os.menu) return os.closeMenu()
         if (os.paletteOpen) return os.setPaletteOpen(false)
         if (os.activeId) os.close(os.activeId)
       }
     }
     window.addEventListener('keydown', on)
     return () => window.removeEventListener('keydown', on)
-  }, [os, ctx])
+  }, [os])
 
+  const hasMenu = Boolean(os.menu)
+  const { closeMenu } = os
   useEffect(() => {
-    if (!ctx) return
-    const close = () => setCtx(null)
+    if (!hasMenu) return
+    const close = () => closeMenu()
     window.addEventListener('pointerdown', close)
     window.addEventListener('blur', close)
     return () => {
       window.removeEventListener('pointerdown', close)
       window.removeEventListener('blur', close)
     }
-  }, [ctx])
+  }, [hasMenu, closeMenu])
 
   const ctxItems: MenuItem[] = [
     {
@@ -116,6 +132,15 @@ export function Desktop({ stagger }: { stagger: boolean }) {
         os.setSettings({
           accent: ACCENTS[(ACCENTS.indexOf(os.settings.accent) + 1) % ACCENTS.length],
         }),
+    },
+    { sep: true },
+    {
+      label: 'Clean up icons',
+      onSelect: () => window.dispatchEvent(new CustomEvent(ICON_EVENT, { detail: 'cleanup' })),
+    },
+    {
+      label: 'Sort icons by name',
+      onSelect: () => window.dispatchEvent(new CustomEvent(ICON_EVENT, { detail: 'sort' })),
     },
     { sep: true },
     { label: 'Open Terminal', onSelect: () => os.open('terminal') },
@@ -139,13 +164,12 @@ export function Desktop({ stagger }: { stagger: boolean }) {
       onContextMenu={(e) => {
         if ((e.target as HTMLElement).closest('[data-win],header,nav')) return
         e.preventDefault()
-        setCtx({
-          x: Math.min(e.clientX, window.innerWidth - 240),
-          y: Math.min(e.clientY, window.innerHeight - 220),
-        })
+        os.openMenu(e.clientX, e.clientY, ctxItems)
       }}
     >
-      <Wallpaper parallax={!os.reduced && !os.mobile} />
+      <Wallpaper parallax={!os.reduced && !os.mobile} flat3d={wall3d && want3d}>
+        {wall3d && want3d && <Wallpaper3D paused={covered} />}
+      </Wallpaper>
       {/* DOM order is the Tab order: menu bar, icons, dock, windows. */}
       <MenuBar />
       <DesktopIcons stagger={stagger && !os.reduced} />
@@ -158,13 +182,13 @@ export function Desktop({ stagger }: { stagger: boolean }) {
           ))}
         </AnimatePresence>
       </div>
-      {ctx && (
+      {os.menu && (
         <div
           className={styles.ctx}
-          style={{ left: ctx.x, top: ctx.y }}
+          style={{ left: os.menu.x, top: os.menu.y }}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <MenuList items={ctxItems} className={styles.dropdown} onClose={() => setCtx(null)} />
+          <MenuList items={os.menu.items} className={styles.dropdown} onClose={os.closeMenu} />
         </div>
       )}
       {os.paletteOpen && <Palette onClose={() => os.setPaletteOpen(false)} />}

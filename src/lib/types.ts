@@ -21,6 +21,17 @@ export type Img = {
 
 export type Link = { label: string; url: string; platform: string }
 
+/** Validated Spotify embed. Built on the server from a strict open.spotify.com link. */
+export type Spotify = {
+  /** The link as entered (and validated). */
+  url: string
+  label: string
+  kind: 'playlist' | 'album' | 'track' | 'artist' | 'episode' | 'show'
+  /** Official embed URL, built from the parsed kind and id. */
+  src: string
+  height: number
+}
+
 export type Settings = {
   name: string
   handle: string
@@ -38,6 +49,7 @@ export type Settings = {
   socials: Link[]
   instagram: { handle: string; url: string; followers: string; pitch: string }
   seo: { title: string; description: string; ogImage: Img | null }
+  spotify: Spotify | null
 }
 
 export type Project = {
@@ -51,6 +63,8 @@ export type Project = {
   stack: string[]
   tags: string[]
   cover: Img | null
+  /** Square app icon. Falls back to the cover. */
+  appIcon: Img | null
   gallery: Img[]
   problem: string
   approach: string
@@ -126,6 +140,29 @@ export type ExperienceItem = {
   highlights: string[]
 }
 
+export type Post = {
+  id: string
+  kind: 'blog' | 'note'
+  slug: string
+  title: string
+  excerpt: string
+  /** Markdown. Render with a safe renderer (no raw HTML). */
+  body: string
+  publishedAt: string
+  tags: string[]
+  cover: Img | null
+  featured: boolean
+}
+
+/** Approved guestbook entries only. Render as plain text. */
+export type GuestEntry = {
+  id: string
+  name: string
+  message: string
+  sticker: string
+  createdAt: string
+}
+
 export type SiteData = {
   settings: Settings
   projects: Project[]
@@ -134,4 +171,6 @@ export type SiteData = {
   hardware: HardwareProject[]
   skills: Skill[]
   experience: ExperienceItem[]
+  posts: Post[]
+  guestbook: GuestEntry[]
 }

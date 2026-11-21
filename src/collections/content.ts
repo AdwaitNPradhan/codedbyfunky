@@ -70,6 +70,12 @@ export const Projects = base({
     { name: 'stack', type: 'text', hasMany: true },
     { name: 'tags', type: 'text', hasMany: true },
     { name: 'cover', type: 'upload', relationTo: 'media' },
+    {
+      name: 'appIcon',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Square icon for the installed app in FunkyOS. Falls back to the cover.' },
+    },
     { name: 'gallery', type: 'upload', relationTo: 'media', hasMany: true },
     { name: 'problem', type: 'textarea' },
     { name: 'approach', type: 'textarea' },
@@ -259,6 +265,43 @@ export const Experience = base({
     { name: 'url', type: 'text' },
     { name: 'summary', type: 'textarea' },
     { name: 'highlights', type: 'array', fields: [{ name: 'text', type: 'text', required: true }] },
+    order,
+    published,
+  ],
+})
+
+export const Posts = base({
+  slug: 'posts',
+  admin: { useAsTitle: 'title', defaultColumns: ['title', 'kind', 'publishedAt', 'published'] },
+  fields: [
+    {
+      name: 'kind',
+      type: 'select',
+      required: true,
+      defaultValue: 'blog',
+      options: [
+        { label: 'Blog post (Blog app)', value: 'blog' },
+        { label: 'Note (Notes app)', value: 'note' },
+      ],
+    },
+    { name: 'title', type: 'text', required: true },
+    slug,
+    { name: 'excerpt', type: 'textarea', maxLength: 300 },
+    {
+      name: 'body',
+      type: 'textarea',
+      required: true,
+      admin: { description: 'Markdown. No raw HTML.', rows: 16 },
+    },
+    {
+      name: 'publishedAt',
+      type: 'date',
+      defaultValue: () => new Date().toISOString(),
+      admin: { position: 'sidebar', date: { pickerAppearance: 'dayAndTime' } },
+    },
+    { name: 'tags', type: 'text', hasMany: true },
+    { name: 'cover', type: 'upload', relationTo: 'media' },
+    featured,
     order,
     published,
   ],

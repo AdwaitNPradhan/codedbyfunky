@@ -27,6 +27,10 @@ export default function Terminal({ active, hidden }: AppProps) {
   const hIdx = useRef(-1)
   const draft = useRef('')
   const cancelled = useRef(false)
+  // Hidden input, for `sudo`. The resolver gets the typed text, or null on Ctrl+C.
+  const [pw, setPw] = useState<{ prompt: string; resolve: (v: string | null) => void } | null>(null)
+  const wipeTimer = useRef<ReturnType<typeof setInterval>>(undefined)
+  useEffect(() => () => clearInterval(wipeTimer.current), [])
 
   const push = useCallback((node: ReactNode) => {
     setLines((l) => [...l, { id: ++idRef.current, node }].slice(-MAX_LINES))
@@ -46,6 +50,34 @@ export default function Terminal({ active, hidden }: AppProps) {
       history: history.current,
       clear: () => setLines([]),
       exec: (line) => void run(line),
+      askPassword: (prompt) =>
+        new Promise((resolve) => {
+          setValue('')
+          setPw({ prompt, resolve })
+        }),
+      wipe: (paths) => {
+        clearInterval(wipeTimer.current)
+        if (osRef.current.reduced) return push(<span className={ui.tDim}>removed &apos;/&apos;</span>)
+        const filler = ['usr/share/doc', 'usr/lib/python3', 'var/cache', 'opt/funky', 'srv/www', 'lib/modules', 'proc/sys', 'mnt/backup']
+        const all = [
+          ...paths,
+          ...Array.from({ length: Math.max(0, 230 - paths.length) }, (_, i) => `/${filler[i % filler.length]}/f${(i * 7919) % 9973}.${['so', 'cfg', 'log', 'dat'][i % 4]}`),
+        ]
+        let i = 0
+        wipeTimer.current = setInterval(() => {
+          const batch = all.slice(i, i + 3)
+          i += 3
+          if (batch.length)
+            setLines((l) =>
+              [...l, ...batch.map((p) => ({ id: ++idRef.current, node: <span className={ui.tDim}>removed &apos;{p}&apos;</span> }))].slice(-MAX_LINES),
+            )
+          if (i >= all.length) {
+            clearInterval(wipeTimer.current)
+            push(<span className={ui.tErr}>rm: cannot remove &apos;/proc/1/fd/0&apos;: Device or resource busy</span>)
+            push(<span className={ui.tErr}>Kernel panic - not syncing: Attempted to kill init!</span>)
+          }
+        }, 24)
+      },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data],
@@ -113,6 +145,25 @@ export default function Terminal({ active, hidden }: AppProps) {
   }, [active, hidden])
 
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (pw) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        const { resolve, prompt } = pw
+        const v = value
+        setValue('')
+        setPw(null)
+        push(<span>{prompt}</span>)
+        resolve(v)
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault()
+        const { resolve, prompt } = pw
+        setValue('')
+        setPw(null)
+        push(<span className={ui.tDim}>{prompt}^C</span>)
+        resolve(null)
+      }
+      return
+    }
     if (e.key === 'Enter') {
       e.preventDefault()
       const v = value
@@ -157,6 +208,7 @@ export default function Terminal({ active, hidden }: AppProps) {
   }
 
   const prompt = useMemo(() => `${host}:${promptPath(cwd)}$`, [host, cwd])
+  const label = pw ? pw.prompt : prompt
 
   return (
     <div
@@ -174,18 +226,19 @@ export default function Terminal({ active, hidden }: AppProps) {
       </div>
       <div className={ui.tInputRow}>
         <label htmlFor="os-term-in" className={ui.tPrompt}>
-          {prompt}
+          {label}
         </label>
         <input
           ref={input}
           id="os-term-in"
+          type={pw ? 'password' : 'text'}
           className={ui.tInput}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={onKey}
           autoCapitalize="off"
           autoCorrect="off"
-          autoComplete="off"
+          autoComplete={pw ? 'new-password' : 'off'}
           spellCheck={false}
           enterKeyHint="send"
           aria-busy={busy}

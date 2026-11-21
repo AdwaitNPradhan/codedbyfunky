@@ -56,7 +56,7 @@ const create: GameFactory = (env) => {
   let shownFloors = 0
   let flash = 0
 
-  const uh = () => clamp(env.h * 0.062, 22, 40)
+  const uh = () => clamp(env.h * 0.07, 22, 54)
   const groundY = () => env.h - clamp(env.h * 0.07, 28, 56)
   const hoverGap = () => uh() * 1.5
   const speed = () => lerp(0.58, 1.35, 1 - Math.exp(-tower.length / 34)) // screen-widths per second (centre travel)
@@ -309,7 +309,7 @@ const create: GameFactory = (env) => {
   return {
     reset() {
       const w = env.w
-      baseW = clamp(w * 0.5, 110, 300)
+      baseW = clamp(w * 0.5, 110, 380)
       prevW = w
       tower = [{ x: w / 2 - baseW / 2, w: baseW, floor: 0, fall: 0, squash: 0, glow: 0 }]
       debris = []

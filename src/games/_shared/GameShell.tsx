@@ -352,6 +352,9 @@ export function GameShell({
       const fromRoot = e.target === root
       const act = k === 'Enter' || k === ' '
       const isR = (k === 'r' || k === 'R') && !meta.typing
+      // While the game is focused, Space / game keys must never scroll the page — in any state
+      // (otherwise mashing Space during the game-over delay scrolls the frame away).
+      if (fromRoot && (k === ' ' || meta.keys?.includes(k))) e.preventDefault()
       if (k === 'Escape') {
         if (env.state === 'playing') pause()
         else if (env.state === 'paused') resume()

@@ -1,22 +1,37 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { FILE_SECTIONS, normSection, type FileSection } from '../deeplink'
 import { Icon, type IconName } from '../icons'
 import { Pic } from '../Pic'
 import { useOS } from '../store'
-import type { AppProps } from '../types'
-import { monthYear } from '../util'
+import type { AppId, AppProps, WinProps } from '../types'
+import { monthYear, slugify } from '../util'
 import { modifiedLabel, VERSION_FILES } from '../versions'
 import type { Img } from '@/lib/types'
 import { Empty } from './common'
 import ui from './apps.module.css'
 
-type Section = 'projects' | 'photos' | 'games' | 'hardware' | 'documents' | 'versions'
-type Row = { id: string; name: string; kind: string; year: string; ts?: number; stack: string; img: Img | null; icon: IconName; summary: string; open: () => void }
+type Section = FileSection
+type Row = {
+  id: string
+  name: string
+  kind: string
+  year: string
+  ts?: number
+  stack: string
+  img: Img | null
+  icon: IconName
+  summary: string
+  /** The window this file opens. Also what Share links to. */
+  app: AppId
+  props: WinProps
+}
 
 const SECTIONS: { id: Section; label: string; icon: IconName }[] = [
   { id: 'projects', label: 'Projects', icon: 'folder' },
-  { id: 'photos', label: 'Photos', icon: 'image' },
+  { id: 'applications', label: 'Applications', icon: 'apps' },
+  { id: 'media', label: 'Media', icon: 'image' },
   { id: 'games', label: 'Games', icon: 'games' },
   { id: 'hardware', label: 'Hardware', icon: 'chip' },
   { id: 'documents', label: 'Documents', icon: 'doc' },
@@ -28,7 +43,7 @@ type SortKey = 'name' | 'kind' | 'year'
 export default function Files({ props, active }: AppProps) {
   const os = useOS()
   const { data } = os
-  const [section, setSection] = useState<Section>(SECTIONS.some((s) => s.id === props.path) ? (props.path as Section) : 'projects')
+  const [section, setSection] = useState<Section>(normSection(props.path))
   const [view, setView] = useState<'list' | 'icons'>('list')
   const [filter, setFilter] = useState('')
   const [sel, setSel] = useState<string | null>(null)
@@ -38,7 +53,7 @@ export default function Files({ props, active }: AppProps) {
 
   // Deep link: `files` opened again with another path switches section.
   useEffect(() => {
-    if (props.path && SECTIONS.some((s) => s.id === props.path)) setSection(props.path as Section)
+    if (props.path && FILE_SECTIONS.includes(normSection(props.path))) setSection(normSection(props.path))
   }, [props.path])
 
   const rows = useMemo<Row[]>(() => {
@@ -53,19 +68,34 @@ export default function Files({ props, active }: AppProps) {
           img: p.cover,
           icon: 'folder',
           summary: p.summary,
-          open: () => os.open('preview', { slug: p.slug }),
+          app: 'preview',
+          props: { slug: p.slug },
         }))
-      case 'photos':
+      case 'applications':
+        return data.projects.map((p) => ({
+          id: p.slug,
+          name: `${p.title}.app`,
+          kind: 'Application',
+          year: p.year ? String(p.year) : '',
+          stack: p.stack.join(', '),
+          img: p.appIcon ?? p.cover,
+          icon: 'product',
+          summary: p.summary,
+          app: 'product',
+          props: { slug: p.slug },
+        }))
+      case 'media':
         return data.photos.map((p) => ({
           id: p.id,
-          name: p.title,
-          kind: `Photo${p.series ? ` · ${p.series}` : ''}`,
+          name: `${slugify(p.title)}.jpg`,
+          kind: `Image${p.series ? ` · ${p.series}` : ''}`,
           year: p.takenAt ? String(new Date(p.takenAt).getFullYear()) : '',
           stack: [p.camera, p.lens].filter(Boolean).join(', '),
           img: p.image,
           icon: 'image',
-          summary: [p.location, monthYear(p.takenAt)].filter(Boolean).join(' · '),
-          open: () => os.open('photos', { photo: p.id }),
+          summary: [p.title, p.location, monthYear(p.takenAt)].filter(Boolean).join(' · '),
+          app: 'photos',
+          props: { photo: p.id },
         }))
       case 'games':
         return data.games.map((g) => ({
@@ -77,7 +107,8 @@ export default function Files({ props, active }: AppProps) {
           img: g.cover,
           icon: 'games',
           summary: g.tagline,
-          open: () => os.open('game', { slug: g.slug }),
+          app: 'game',
+          props: { slug: g.slug },
         }))
       case 'hardware':
         return data.hardware.map((h) => ({
@@ -89,7 +120,8 @@ export default function Files({ props, active }: AppProps) {
           img: h.cover,
           icon: 'chip',
           summary: h.summary,
-          open: () => os.open('lab', { slug: h.slug }),
+          app: 'lab',
+          props: { slug: h.slug },
         }))
       case 'versions':
         return VERSION_FILES.map((v) => ({
@@ -102,16 +134,43 @@ export default function Files({ props, active }: AppProps) {
           img: null,
           icon: v.icon,
           summary: `${v.title}. ${v.note}`,
-          open: () => os.open('browser', { v: v.key }),
+          app: 'browser',
+          props: { v: v.key },
         }))
       default: {
-        const docs: Row[] = [{ id: 'readme', name: 'README.txt', kind: 'Text', year: '', stack: '', img: null, icon: 'about', summary: 'Who I am and how to reach me.', open: () => os.open('about') }]
+        const docs: Row[] = [
+          { id: 'readme', name: 'README.txt', kind: 'Text', year: '', stack: '', img: null, icon: 'about', summary: 'Who I am and how to reach me.', app: 'about', props: {} },
+          ...data.posts.map((p) => ({
+            id: p.slug,
+            name: `${p.slug}.md`,
+            kind: p.kind === 'note' ? 'Note' : 'Blog post',
+            year: String(new Date(p.publishedAt).getFullYear() || ''),
+            ts: Date.parse(p.publishedAt) || 0,
+            stack: p.excerpt,
+            img: p.cover,
+            icon: 'doc' as IconName,
+            summary: p.excerpt || p.title,
+            app: (p.kind === 'note' ? 'notes' : 'blog') as AppId,
+            props: { slug: p.slug },
+          })),
+        ]
         if (data.settings.resumeUrl)
-          docs.push({ id: 'resume', name: 'Resume.pdf', kind: 'PDF', year: '', stack: '', img: null, icon: 'pdf', summary: 'My resume as a PDF.', open: () => os.open('resume') })
+          docs.push({ id: 'resume', name: 'Resume.pdf', kind: 'PDF', year: '', stack: '', img: null, icon: 'pdf', summary: 'My resume as a PDF.', app: 'resume', props: {} })
         return docs
       }
     }
-  }, [section, data, os])
+  }, [section, data])
+
+  const open = (r: Row) => os.open(r.app, r.props)
+  const menuFor = (r: Row) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSel(r.id)
+    os.openMenu(e.clientX, e.clientY, [
+      { label: 'Open', onSelect: () => open(r) },
+      { label: 'Share link', onSelect: () => os.share(r.app, r.props) },
+    ])
+  }
 
   const shown = useMemo(() => {
     const q = filter.trim().toLowerCase()
@@ -144,7 +203,7 @@ export default function Files({ props, active }: AppProps) {
     else if (e.key === 'ArrowUp') (e.preventDefault(), move(-cols))
     else if (e.key === 'ArrowRight' && view === 'icons') (e.preventDefault(), move(1))
     else if (e.key === 'ArrowLeft' && view === 'icons') (e.preventDefault(), move(-1))
-    else if (e.key === 'Enter' && cur) (e.preventDefault(), cur.open())
+    else if (e.key === 'Enter' && cur) (e.preventDefault(), open(cur))
     else if (e.key === ' ' && cur) (e.preventDefault(), setQl((v) => !v))
     else if (e.key === 'Escape' && ql) (e.preventDefault(), setQl(false))
   }
@@ -161,7 +220,7 @@ export default function Files({ props, active }: AppProps) {
     </button>
   )
 
-  const onPick = (r: Row) => (os.mobile ? r.open() : setSel(r.id))
+  const onPick = (r: Row) => (os.mobile ? open(r) : setSel(r.id))
 
   return (
     <div
@@ -201,8 +260,11 @@ export default function Files({ props, active }: AppProps) {
             placeholder="Filter…"
             aria-label="Filter items"
           />
-          <button type="button" className={`${ui.btn} ${ui.btnSm} ${ui.openBtn}`} disabled={!cur} onClick={() => cur?.open()}>
+          <button type="button" className={`${ui.btn} ${ui.btnSm} ${ui.openBtn}`} disabled={!cur} onClick={() => cur && open(cur)}>
             Open
+          </button>
+          <button type="button" className={`${ui.btn} ${ui.btnSm}`} disabled={!cur} onClick={() => cur && os.share(cur.app, cur.props)}>
+            Share
           </button>
         </div>
 
@@ -225,7 +287,8 @@ export default function Files({ props, active }: AppProps) {
                     aria-selected={sel === r.id}
                     className={ui.row}
                     onClick={() => onPick(r)}
-                    onDoubleClick={r.open}
+                    onDoubleClick={() => open(r)}
+                    onContextMenu={menuFor(r)}
                   >
                     <span className={ui.cName}>
                       <Icon name={r.icon} size={20} />
@@ -242,7 +305,7 @@ export default function Files({ props, active }: AppProps) {
           {view === 'icons' && shown.length > 0 && (
             <ul className={ui.tiles} role="listbox" aria-label={SECTIONS.find((s) => s.id === section)!.label} tabIndex={0}>
               {shown.map((r) => (
-                <li key={r.id} data-id={r.id} role="option" aria-selected={sel === r.id} className={ui.tile} onClick={() => onPick(r)} onDoubleClick={r.open}>
+                <li key={r.id} data-id={r.id} role="option" aria-selected={sel === r.id} className={ui.tile} onClick={() => onPick(r)} onDoubleClick={() => open(r)} onContextMenu={menuFor(r)}>
                   <span className={ui.tileImg}>
                     {r.img ? <Pic img={r.img} size="thumb" sizes="160px" /> : <Icon name={r.icon} size={40} />}
                   </span>
@@ -255,7 +318,7 @@ export default function Files({ props, active }: AppProps) {
 
         <p className={ui.statusbar} aria-live="polite">
           {shown.length} item{shown.length === 1 ? '' : 's'}
-          {cur ? ` · ${cur.name} selected` : ''} · Double-click to open · Space for quick look
+          {cur ? ` · ${cur.name} selected` : ''} · Double-click to open · Right-click to share · Space for quick look
         </p>
 
         {ql && cur && (
@@ -270,7 +333,7 @@ export default function Files({ props, active }: AppProps) {
               <p>{cur.summary}</p>
               {cur.stack && <p className={ui.dim}>{cur.stack}</p>}
               <div className={ui.ctaRow}>
-                <button type="button" className={`${ui.btn} ${ui.btnPrimary}`} autoFocus onClick={cur.open}>
+                <button type="button" className={`${ui.btn} ${ui.btnPrimary}`} autoFocus onClick={() => open(cur)}>
                   Open
                 </button>
                 <button type="button" className={ui.btn} onClick={() => setQl(false)}>

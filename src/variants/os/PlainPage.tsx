@@ -188,6 +188,20 @@ export function PlainContent({ data, visible }: { data: SiteData; visible: boole
         </section>
       )}
 
+      {data.posts.some((p) => p.kind === 'blog') && (
+        <section aria-labelledby="p-blog">
+          <h2 id="p-blog">Writing</h2>
+          {data.posts
+            .filter((p) => p.kind === 'blog')
+            .map((p) => (
+              <article key={p.id}>
+                <h3>{p.title}</h3>
+                <p>{p.excerpt}</p>
+              </article>
+            ))}
+        </section>
+      )}
+
       <section aria-labelledby="p-old">
         <h2 id="p-old">Earlier versions of this site</h2>
         <ul>

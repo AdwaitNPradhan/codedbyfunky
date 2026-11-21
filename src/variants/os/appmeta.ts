@@ -13,6 +13,8 @@ type Meta = {
   title: (p: WinProps, d: SiteData) => string
 }
 
+const hw = (d: SiteData, slug?: string) => d.hardware.find((x) => x.slug === slug)
+
 export const META: Record<AppId, Meta> = {
   about: { label: 'README.txt', icon: 'about', w: 640, h: 460, title: () => 'README.txt' },
   files: { label: 'Projects', icon: 'folder', w: 760, h: 480, title: () => 'Files' },
@@ -45,6 +47,30 @@ export const META: Record<AppId, Meta> = {
   mail: { label: 'Mail', icon: 'mail', w: 620, h: 520, title: () => 'Mail' },
   resume: { label: 'Resume.pdf', icon: 'pdf', w: 660, h: 580, title: () => 'Resume.pdf' },
   settings: { label: 'Settings', icon: 'settings', w: 480, h: 420, title: () => 'Settings' },
+  spotify: {
+    label: 'Spotify',
+    icon: 'spotify',
+    w: 480,
+    h: 560,
+    title: (_, d) => d.settings.spotify?.label ?? 'Spotify',
+  },
+  notes: { label: 'Notes', icon: 'notes', w: 780, h: 500, title: () => 'Notes' },
+  blog: { label: 'Blog', icon: 'blog', w: 800, h: 580, title: () => 'Blog' },
+  product: {
+    label: 'App',
+    icon: 'product',
+    w: 840,
+    h: 600,
+    title: (p, d) => d.projects.find((x) => x.slug === p.slug)?.title ?? 'App',
+  },
+  guestbook: { label: 'Guestbook', icon: 'guestbook', w: 700, h: 540, title: () => 'Guestbook' },
+  model: {
+    label: '3D Viewer',
+    icon: 'model',
+    w: 780,
+    h: 560,
+    title: (p, d) => (hw(d, p.slug) ? `${hw(d, p.slug)!.title} · 3D` : '3D Viewer'),
+  },
   browser: {
     label: 'Browser',
     icon: 'browser',
@@ -64,9 +90,9 @@ export const MENU_H = 28
 /** Space kept free at the bottom of the desktop for the dock. */
 export const DOCK_RESERVE = 84
 
-/** Windows are singletons except preview and game (keyed by slug) and browser (keyed by version). */
+/** Windows are singletons except preview, game, product and model (keyed by slug) and browser (keyed by version). */
 export const idFor = (app: AppId, p: WinProps = {}) =>
-  app === 'preview' || app === 'game'
+  app === 'preview' || app === 'game' || app === 'product' || app === 'model'
     ? `${app}:${p.slug ?? ''}`
     : app === 'browser'
       ? `browser:${p.v ?? ''}`
@@ -83,6 +109,10 @@ export const DESKTOP_APPS: AppId[] = [
   'terminal',
   'mail',
   'resume',
+  'notes',
+  'blog',
+  'spotify',
+  'guestbook',
 ]
 export const HOME_APPS: AppId[] = [
   'about',
@@ -94,8 +124,14 @@ export const HOME_APPS: AppId[] = [
   'terminal',
   'mail',
   'resume',
+  'notes',
+  'blog',
+  'spotify',
+  'guestbook',
   'settings',
 ]
+/** Apps that only exist when the CMS has the data for them. */
+export const needsSpotify = (a: AppId, d: SiteData) => a !== 'spotify' || Boolean(d.settings.spotify)
 export const TAB_APPS: AppId[] = ['about', 'files', 'photos', 'terminal']
 
 export const APP_IDS = Object.keys(META) as AppId[]

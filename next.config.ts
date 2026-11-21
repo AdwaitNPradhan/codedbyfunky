@@ -23,8 +23,11 @@ const securityHeaders = [
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'self'",
+      // The Spotify app embeds the official player. Nothing else may be framed.
+      "frame-src 'self' https://open.spotify.com",
       "form-action 'self'",
-      "img-src 'self' data: blob: https:",
+      // Instagram feed images (Photos app). The CDN URLs expire, so they are never proxied or cached.
+      "img-src 'self' data: blob: https: https://*.cdninstagram.com https://*.fbcdn.net",
       "media-src 'self' blob: https:",
       "font-src 'self' data:",
       "style-src 'self' 'unsafe-inline'",

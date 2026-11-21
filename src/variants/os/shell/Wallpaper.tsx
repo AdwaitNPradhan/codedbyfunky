@@ -18,7 +18,16 @@ function skyline(seed: number, base: number, amp: number, step: number, w: numbe
   return `${d}V${h}Z`
 }
 
-export function Wallpaper({ parallax }: { parallax: boolean }) {
+export function Wallpaper({
+  parallax,
+  flat3d = false,
+  children,
+}: {
+  parallax: boolean
+  /** True while the 3D wallpaper is drawn: the flat hill layers fade out. */
+  flat3d?: boolean
+  children?: React.ReactNode
+}) {
   const px = useMotionValue(0)
   const py = useMotionValue(0)
   const sx = useSpring(px, { stiffness: 60, damping: 20, mass: 1 })
@@ -49,8 +58,9 @@ export function Wallpaper({ parallax }: { parallax: boolean }) {
   )
 
   return (
-    <div className={styles.wall} aria-hidden="true">
+    <div className={styles.wall} aria-hidden="true" data-3d={flat3d}>
       <div className={styles.sun} />
+      {children}
       {(['far', 'mid', 'near'] as const).map((k) => (
         <m.div
           key={k}

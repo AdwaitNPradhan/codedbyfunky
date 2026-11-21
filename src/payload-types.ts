@@ -73,8 +73,10 @@ export interface Config {
     hardware: Hardware;
     skills: Skill;
     experience: Experience;
+    posts: Post;
     media: Media;
     messages: Message;
+    guestbook: Guestbook;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,8 +91,10 @@ export interface Config {
     hardware: HardwareSelect<false> | HardwareSelect<true>;
     skills: SkillsSelect<false> | SkillsSelect<true>;
     experience: ExperienceSelect<false> | ExperienceSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     messages: MessagesSelect<false> | MessagesSelect<true>;
+    guestbook: GuestbookSelect<false> | GuestbookSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -150,6 +154,10 @@ export interface Project {
   stack?: string[] | null;
   tags?: string[] | null;
   cover?: (string | null) | Media;
+  /**
+   * Square icon for the installed app in FunkyOS. Falls back to the cover.
+   */
+  appIcon?: (string | null) | Media;
   gallery?: (string | Media)[] | null;
   problem?: string | null;
   approach?: string | null;
@@ -387,6 +395,32 @@ export interface Experience {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: string;
+  kind: 'blog' | 'note';
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  /**
+   * Markdown. No raw HTML.
+   */
+  body: string;
+  publishedAt?: string | null;
+  tags?: string[] | null;
+  cover?: (string | null) | Media;
+  featured?: boolean | null;
+  /**
+   * Lower shows first
+   */
+  order?: number | null;
+  published?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "messages".
  */
 export interface Message {
@@ -401,6 +435,23 @@ export interface Message {
    * Which page variant
    */
   source?: string | null;
+  ipHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guestbook".
+ */
+export interface Guestbook {
+  id: string;
+  name: string;
+  message: string;
+  sticker?: ('star' | 'heart' | 'smile' | 'fire' | 'rocket' | 'coffee' | 'camera' | 'bug') | null;
+  /**
+   * Tick to show this entry on the site.
+   */
+  approved?: boolean | null;
   ipHash?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -482,12 +533,20 @@ export interface PayloadLockedDocument {
         value: string | Experience;
       } | null)
     | ({
+        relationTo: 'posts';
+        value: string | Post;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
     | ({
         relationTo: 'messages';
         value: string | Message;
+      } | null)
+    | ({
+        relationTo: 'guestbook';
+        value: string | Guestbook;
       } | null)
     | ({
         relationTo: 'users';
@@ -549,6 +608,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   stack?: T;
   tags?: T;
   cover?: T;
+  appIcon?: T;
   gallery?: T;
   problem?: T;
   approach?: T;
@@ -682,6 +742,25 @@ export interface ExperienceSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  kind?: T;
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  body?: T;
+  publishedAt?: T;
+  tags?: T;
+  cover?: T;
+  featured?: T;
+  order?: T;
+  published?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -746,6 +825,19 @@ export interface MessagesSelect<T extends boolean = true> {
   status?: T;
   emailed?: T;
   source?: T;
+  ipHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guestbook_select".
+ */
+export interface GuestbookSelect<T extends boolean = true> {
+  name?: T;
+  message?: T;
+  sticker?: T;
+  approved?: T;
   ipHash?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -871,6 +963,39 @@ export interface Site {
      * Why follow — shown next to the photo section
      */
     pitch?: string | null;
+    /**
+     * Instagram API with Instagram Login: paste a long-lived access token (professional account). Shows your feed in the Photos app. The site renews it by itself every 7 days. Empty: falls back to the INSTAGRAM_ACCESS_TOKEN env var, then to the Photos collection.
+     */
+    accessToken?: string | null;
+    /**
+     * Set by the site when the token is pasted or renewed.
+     */
+    tokenRefreshedAt?: string | null;
+  };
+  /**
+   * Spotify app in FunkyOS. Shown only for a valid open.spotify.com link.
+   */
+  spotify?: {
+    /**
+     * https://open.spotify.com/(playlist|album|track|artist|episode|show)/<id>
+     */
+    url?: string | null;
+    /**
+     * Optional window label
+     */
+    label?: string | null;
+  };
+  easterEggs?: {
+    /**
+     * Terminal "rm -rf /" can blank FunkyOS for every visitor for 1 hour (once per 24 h). Untick to disable.
+     */
+    doomsday?: boolean | null;
+  };
+  guestbook?: {
+    /**
+     * Off: new guestbook entries wait for you to tick "approved". On: they show at once.
+     */
+    autoApprove?: boolean | null;
   };
   seoTitle?: string | null;
   seoDescription?: string | null;
@@ -922,6 +1047,24 @@ export interface SiteSelect<T extends boolean = true> {
         url?: T;
         followers?: T;
         pitch?: T;
+        accessToken?: T;
+        tokenRefreshedAt?: T;
+      };
+  spotify?:
+    | T
+    | {
+        url?: T;
+        label?: T;
+      };
+  easterEggs?:
+    | T
+    | {
+        doomsday?: T;
+      };
+  guestbook?:
+    | T
+    | {
+        autoApprove?: T;
       };
   seoTitle?: T;
   seoDescription?: T;

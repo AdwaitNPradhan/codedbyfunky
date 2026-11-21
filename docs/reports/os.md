@@ -126,3 +126,94 @@ Tool: Playwright (headless Chromium) against the dev server on port 3101 (the on
 - On the phone the Files sidebar row scrolls sideways, so `Old Versions` is off-screen at first. Use the home tile.
 - The "last modified" dates are fake.
 - Not tested: a real phone, Safari and Firefox (the Back button uses the load-counter fallback where the Navigation API is missing), VoiceOver. `next build` ran while the shared dev server was up (Next 16 keeps dev output in `.next/dev`, and the dev server stayed healthy).
+
+## More apps, installed products, 3D, the doomsday egg and the guestbook
+
+Four follow-ups, built in order. After each one `npx tsc --noEmit` is clean and `npm run build` passes. Nothing is committed.
+
+### New CMS collections and fields (add demo data to production by hand)
+
+| Where | Field | Notes |
+|---|---|---|
+| Collection `posts` (group Content) | `kind` (select `blog` or `note`, default `blog`), `title`, `slug` (unique, `a-z 0-9 -`), `excerpt` (≤ 300), `body` (textarea, **markdown**, no raw HTML), `publishedAt` (date, default now), `tags` (text list), `cover` (upload), `featured`, `order`, `published` (default on) | Public API and pages see published posts only. Blog app shows `kind = blog`, Notes app shows `kind = note`. |
+| Collection `guestbook` (group Inbox) | `name` (2–40), `message` (2–280), `sticker` (`star heart smile fire rocket coffee camera bug`), `approved` (default **off**), `ipHash` (read-only, never public) | Public read: approved entries only, and never `ipHash`. Create: nobody over the API (only the server action writes). Update: any signed-in user. Delete: admin. |
+| Site settings > Links > `spotify` | `url`, `label` | `url` must be `https://open.spotify.com/(playlist\|album\|track\|artist\|episode\|show)/<id>`. Anything else hides the app. The embed URL is rebuilt on the server from the parsed kind and id. |
+| Site settings > Fun (new tab) > `easterEggs.doomsday` | checkbox, default **on** | Kill switch for the `rm -rf /` easter egg. Off: the command does nothing and any active "outage" ends. |
+| Site settings > Fun > `guestbook.autoApprove` | checkbox, default **off** | On: new guestbook entries show at once. |
+| Projects > `appIcon` | upload | Square icon of the installed app. Falls back to `cover`. |
+
+Demo data: `src/seed/seed.ts` now seeds the Spotify link (a public playlist), 3 blog posts and 4 notes (`DEMO_POSTS`, exported). A fresh deploy with `SEED_DEMO=true` creates them. For the live site, add them in `/admin` or copy from `DEMO_POSTS`. Other shared files touched (additive): `src/collections/content.ts` (Posts, `appIcon`), `src/collections/Guestbook.ts` (new), `src/globals/Site.ts`, `src/lib/types.ts` (`Spotify`, `Post`, `GuestEntry`, `Project.appIcon`, `SiteData.posts`, `SiteData.guestbook`), `src/lib/content.ts` (`parseSpotify`, mapping), `src/payload.config.ts`, `src/payload-types.ts` (regenerated), `next.config.ts` (CSP gets only `frame-src 'self' https://open.spotify.com`), `package.json` (`react-markdown`), `src/app/actions/doom.ts` and `src/app/actions/guestbook.ts` (new).
+
+### Follow-up 1: Spotify, Notes, Blog, Media, Share
+
+- **Spotify app.** The official embed in an iframe with `allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"`. Music keeps playing when the window is minimised. On desktop, in the dock when configured. If the CMS link is missing or invalid the app is hidden.
+- **Notes** (list and note, search, tags, one pane on narrow screens) and **Blog** (post list with cover and reading time, article reader, older and newer links). Both read the `posts` collection. Markdown goes through `react-markdown` in its own lazy chunk: no `rehype-raw`, no `dangerouslySetInnerHTML`, raw HTML is dropped, link and image URLs may only be http(s), `mailto:`, site-relative or `#anchor`, headings start at `h3` under the article's `h2`. Checked with a probe note (`javascript:` link, `<script>`, `<img onerror>`, `javascript:` image): nothing ran and nothing unsafe was rendered.
+- **Media folder.** Files > Media lists the CMS photos as `.jpg` files (list, icons, quick look) and opens them in the Photos viewer. The CMS has no video field, so there are no videos yet. `Documents` now also lists posts as `.md` files.
+- **Share on everything.** A Share button in every window title bar and in the phone sheet header; a right-click menu (Open, Share link) on desktop icons, dock icons and Files rows; a Share button in Files; a palette action. The link is `<NEXT_PUBLIC_SITE_URL or this origin>/?app=...`. `navigator.share` is used where it exists, otherwise the link is copied and a "Link copied" toast shows.
+- **Deep links** are checked in `deeplink.ts`: `app` must be an own key of the app table; every other parameter must name something that exists in the CMS data (sets, so `__proto__` or `constructor` never match). Bad values open nothing (or the Old Versions folder for a bad version). Supported: `?app=files&path=<folder>[/<project>]`, `preview|product|game|lab|model&slug=`, `notes|blog&slug=`, `browser&v=`, `photos&photo=`, and the apps without parameters.
+
+### Follow-up 2: products as installed apps, and 3D
+
+- **Installed apps.** Every project is an app: Files > Applications (`.app` files), an `Applications` folder on the desktop, up to 3 featured projects pinned in the dock (not under 900 px width), and featured icons on the phone home screen. The window shows icon, summary, Launch, Repo, Case study, Share, facts, screenshots, details and stack. Launch shows a short "Launching…" splash, then opens the live link in a new tab (external sites refuse frames), with a manual link if the tab does not open. With no live link it offers the repo, or "Not live yet".
+- **3D, all lazy and optional.**
+  1. A low-poly 3D wallpaper (pixel-style, low resolution) that follows the cursor. It starts about 1.8 s after boot, only on a desktop with a mouse, enough CPU and memory, no data-saver and WebGL, not with reduced motion, and can be turned off in Settings. It pauses while a window is maximised or the tab is hidden.
+  2. A 3D board viewer for hardware projects (Lab > View in 3D, or `?app=model&slug=`). It shows a real dev-board model (see "A real 3D model" below) with orbit and pinch controls, the project's part list next to it, auto-rotate off with reduced motion, simpler rendering on weak devices and phones, and a photo fallback without WebGL.
+  3. Desktop icons tilt in 3D toward the mouse (mouse only, motion allowed).
+  All 3D code is in separate chunks loaded with `next/dynamic`.
+
+### Follow-up 3: resume in the terminal, and the doomsday egg
+
+- `resume`, `cat resume.txt` and `whoami --verbose` print a formatted resume (summary, experience, education, skills by category, selected projects, contact) with the PDF link. `resume --pdf` downloads the PDF. `help` lists them.
+- `rm -rf /` prints GNU's failsafe. `rm -rf / --no-preserve-root` without sudo gets "Permission denied". `sudo rm -rf / --no-preserve-root` (also `sudo rm -rf --no-preserve-root /`, `-fr`, `--recursive --force`) asks for a hidden password (any text works, Ctrl+C cancels), then runs the wipe.
+- The wipe: about 230 `removed '<path>'` lines (real FunkyOS file names first), windows close, icons vanish, the dock collapses, the screen glitches, black, then a BIOS screen: "No bootable device found. Insert boot disk and press any key." with the reason, a restore countdown and a snarky line on any key or tap. Reduced motion: no scroll storm and no glitch, a short fade. When the countdown ends the system reboots into the normal boot.
+- `src/app/actions/doom.ts`: `triggerDoom()` and `getDoom()`, state in memory (`doomUntil`, `lastTrigger`, with the "single container, resets on redeploy" comment). 1 hour, at most one trigger per 24 hours, a per-IP limit (3 per 10 minutes, 30 global), and it does nothing when the CMS kill switch is off. FunkyOS asks `getDoom()` once after hydration and shows the BIOS screen client-side, so the server HTML and the ISR cache stay normal. Only `/` and `/os` are affected. `/os?plain=1` and the "Switch to plain text version" link still work, on purpose (accessibility, and a recruiter can still read the site).
+- `DOOM_DURATION_MS` and `DOOM_COOLDOWN_MS` exist only so a test can see a whole cycle in seconds. Leave them unset in production.
+
+### Follow-up 4: guestbook
+
+- Collection `guestbook` and the `signGuestbook` action (`src/app/actions/guestbook.ts`): honeypot, 2.5 s time trap, zod validation, links, domains and e-mail addresses rejected in `name` and `message`, control and zero-width characters removed, per-IP limit of 2 per hour plus a global cap of 50 per hour (check first, record only allowed requests), `ipHash` stored (never the raw IP), no e-mail sent.
+- The app is a form (name, message with counter, 8 stickers) next to a wall of paper notes. Everything is drawn as plain text. After signing, the visitor sees their note at once, marked "pending approval" (or "just posted" when auto-approve is on), kept in `localStorage` until the approved wall contains it. Share link: `?app=guestbook`.
+
+### Tests
+
+Tools: Playwright (headless Chromium) against the dev server (port 3101) and, for the doomsday cycle and the guestbook limits, a production build (`next start`, port 3202) so the shared dev server's counters stay clean. Widths 390 (touch), 768, 1280 and 1920 for the main flows. Console: no errors in any run (only the orbit variant's `THREE.Clock` and WebGL notices, and the motion library's reduced-motion dev notice).
+
+- Spotify embed loads (CSP clean), Notes, Blog, Files > Media and Applications, right-click menus, the title bar and sheet Share buttons (clipboard checked), all deep links including `__proto__`, `constructor`, unknown slugs and a bad app name.
+- Installed apps: dock pins, Launch (popup opened), 3D wallpaper present after the idle delay and absent with reduced motion, on a phone and after turning it off in Settings; 3D board viewer on desktop, phone and with reduced motion; icon tilt matrix.
+- Doomsday: resume commands, failsafe and permission steps, password prompt (masked, Ctrl+C), the whole wipe timeline (wipe steps 0 to 4, then BIOS), snark lines, reload stays dark, other routes stay 200, plain page works, restore after the countdown, 24 h guard message, per-IP limit, kill switch off (nothing happens), reduced motion (BIOS in 1.7 s), phone.
+- Guestbook: empty wall text; Send disabled for the first 2.6 s; honeypot field hidden and not focusable; a form sent in under 2.5 s and a form with the honeypot filled both show a polite "Thanks" but save nothing; a link, a domain name in the name, an e-mail address and a one-letter name each show a field error and save nothing; two valid entries saved (`approved` false, `ipHash` of 16 characters, no raw IP); the third in the same hour is refused ("You signed a moment ago"); entries with `<script>` or `<b>` in the text show as literal text (nothing ran); pending notes survive a reload; anonymous `GET /api/guestbook` shows nothing until approval and never `ipHash`; anonymous `POST /api/guestbook` is 403; after approval the wall shows the entry once, without the pending mark, and the local copy is removed. The global cap of 50 per hour uses the same code as the per-IP check and was not exercised.
+
+### Open issues
+
+- The CMS has no video field, so the Media folder shows photos only.
+- Posts travel in `SiteData` to every variant page (bodies included). A few dozen short posts are fine; a large archive should move to an on-demand fetch.
+- The doomsday state is in memory: a redeploy ends it, and two containers would disagree (noted in the code).
+- The 3D wallpaper adds a WebGL context on desktop. Weak devices and data-saver users do not get it, but there is no battery check.
+- `/api/guestbook` shows approved entries to everyone (name, message, sticker, date) by design.
+- Not tested: a real phone, Safari, Firefox, VoiceOver. The system share sheet (`navigator.share`) was not exercised in headless Chromium, which has none, so only the copy fallback was tested.
+
+
+### Follow-up 5: desktop icon drag and drop (live bug), and the Instagram feed
+
+**A. Icon drag and drop.** Reproduced and fixed in `shell/DesktopIcons.tsx`. Causes: the dragged icon was moved with a CSS transform that added its own position a second time (a jump on pick-up) and that fought with the animation library's transform; the drop snapped by pointer position, not by where the icon was; the grid let icons sit under the dock; saved cells were never re-checked after a resize.
+- A click opens the item (any pointer; Shift or Ctrl click only selects). A drag moves it. The threshold is 4 px for a mouse and 8 px for touch. A drag release never opens anything.
+- Dragging uses the CSS `translate` property from React state: no jump, and a short glide into the cell on release. Several selected icons move together.
+- The grid is cols x rows of 96 px cells and stops above the dock and below the menu bar. A drop snaps to the nearest cell by how far the icon moved. On a collision the dragged icon goes to the nearest free cell. The icon cannot leave the grid while it is dragged.
+- Cells the visitor chose are saved (`localStorage`, new key `funkyos.icons.v2`, so old broken data is ignored). The real layout is solved from them on every size change: nothing overlaps, nothing is lost, and the cells come back when the window gets bigger again.
+- Desktop right-click menu: "Clean up icons" (back to the default layout) and "Sort icons by name".
+- A click anywhere outside the icons clears the selection; opening an item clears it too.
+- Tested with a real mouse and with CDP touch events: no jump on pick-up, drops land on grid cells, no overlaps, clamped at all four edges and over the dock, a drag release opens nothing, a click (even with a 2 px wiggle) opens, positions survive a reload and a resize round trip, sort and clean up.
+
+**B. Instagram feed in the Photos app.**
+- `src/lib/instagram.ts` (server only) uses the Instagram API with Instagram Login (`graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp`). Basic Display was shut down in December 2024. The account must be a professional (creator or business) account.
+- The token is the admin-only Site field `instagram.accessToken` (field-level read and update access: admin only, so it is absent from every public API answer, from `getSiteData` and from the page HTML). If the field is empty it uses the `INSTAGRAM_ACCESS_TOKEN` env var. Tokens are never sent to the browser and never logged (only a status code is logged).
+- Renewal: a long-lived token lasts 60 days. When the saved token is older than 7 days the site calls `refresh_access_token?grant_type=ig_refresh_token` and writes the new token back to the field (`instagram.tokenRefreshedAt` keeps the age; pasting a new token restarts the clock). Instagram refuses tokens younger than 24 hours, so a failed renewal is retried at most once an hour.
+- `src/app/actions/instagram.ts`: `getInstagramFeed()` returns posts only. In-memory cache: 1 hour (5 minutes after a failure). Only `*.cdninstagram.com` and `*.fbcdn.net` image hosts and `instagram.com` links are accepted; other posts are dropped. The CSP `img-src` lists those two hosts.
+- UI (`apps/InstagramFeed.tsx`): the Photos app shows an Instagram tab (grid, lightbox with caption and date, previous and next, "View on Instagram", Share, "Follow @handle" from `settings.instagram`) and a Library tab (the CMS Photos collection). Images are plain lazy `<img>` tags because the CDN links expire. With no token, or when the API fails, only the Library shows, as before. Share link: `?app=photos&id=<post id>` (the id must be 5 to 25 digits; an unknown id is ignored).
+- Tested against a local fake of the API (`INSTAGRAM_API_BASE` accepts only `http://localhost` or `http://127.0.0.1`, for tests): 6 fake posts, 3 kept (a foreign image host, a foreign link host and a non-numeric id were dropped), renewal with the env token and the new token saved to the CMS field, one upstream media call for several page loads, no token in `/api/globals/site` or in the page HTML, no token fields for an anonymous read, a bad token and a missing token both fall back to the Library. Not tested against the real Instagram API (no token).
+
+### A real 3D model in the viewer
+
+- The generated board is gone. The hardware viewer now loads **Arduino Uno by M Ferrieu**, Creative Commons Attribution (CC BY), from Poly Pizza (https://poly.pizza/m/2BEJQybmqQT). Source file 2.48 MB, optimized with `npx @gltf-transform/cli optimize --compress meshopt --texture-compress webp --simplify false` to **296 KB**: `public/models/arduino-uno-v1.glb` (the `/models/*` cache header is already immutable). It loads with `useGLTF(url, false, true)`: meshopt only, no Draco, no KTX2, no CDN.
+- Credit: `docs/CREDITS.md` and a visible link in the viewer window.
+- It is one stand-in board for every hardware project (an Arduino Uno for an ESP32 build, for example). The part list beside it comes from the project. A project-specific model needs a file per project.
