@@ -2,6 +2,8 @@
 
 import crypto from 'node:crypto'
 import { headers } from 'next/headers'
+import { after } from 'next/server'
+import nodemailer from 'nodemailer'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { hasRole } from '@/access'
@@ -107,7 +109,40 @@ export async function triggerDoom(): Promise<DoomResult> {
   if (rateLimited(ipHash)) return off('rate')
   state.lastTrigger = now
   state.doomUntil = now + DURATION_MS
-  return { ok: true, active: true, until: state.doomUntil, now }
+  const until = state.doomUntil
+  // Email the owner after the response, so the wipe animation never waits on SMTP.
+  after(() => notifyOwner(now, until, h.get('user-agent') ?? ''))
+  return { ok: true, active: true, until, now }
+}
+
+/** Plain-text mail to the owner (same SMTP settings as the contact form). Never throws. */
+async function notifyOwner(at: number, until: number, userAgent: string) {
+  try {
+    const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://codedbyfunky.com'
+    const port = Number(process.env.SMTP_PORT || 465)
+    const transport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port,
+      secure: port === 465,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    })
+    await transport.sendMail({
+      from: process.env.SMTP_FROM,
+      to: process.env.CONTACT_TO,
+      subject: 'FunkyOS: someone ran rm -rf /',
+      text: [
+        `Someone ran sudo rm -rf / --no-preserve-root on ${site}.`,
+        '',
+        `When: ${new Date(at).toUTCString()}`,
+        `FunkyOS is blank for every visitor until ${new Date(until).toUTCString()}.`,
+        `Their browser: ${userAgent.replace(/[\r\n]+/g, ' ').slice(0, 200) || 'unknown'}`,
+        '',
+        `Restore it now: ${site}/admin (FunkyOS status panel on the dashboard).`,
+      ].join('\n'),
+    })
+  } catch {
+    console.error('[doom] owner email failed') // no error text: it can echo SMTP details
+  }
 }
 
 /** The owner's undo: only a signed-in admin (Payload session cookie) can end the blackout early. */
