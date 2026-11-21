@@ -5,14 +5,24 @@ import { m } from 'motion/react'
 import { DESKTOP_APPS, META } from '../appmeta'
 import { Icon, ShortcutBadge, type IconName } from '../icons'
 import { useOS } from '../store'
-import type { AppId } from '../types'
+import type { AppId, WinProps } from '../types'
 import { clamp, safeParse, store } from '../util'
+import { VERSION_FILES } from '../versions'
 import styles from '../os.module.css'
 
 const CELL = 96
 const KEY = 'funkyos.icons.v1'
 
-type Item = { id: string; label: string; icon: IconName; app?: AppId; href?: string }
+type Item = {
+  id: string
+  label: string
+  icon: IconName
+  app?: AppId
+  props?: WinProps
+  href?: string
+  /** Starts in the right-hand column, like files dropped on a messy desktop. */
+  right?: boolean
+}
 type Pos = { c: number; r: number }
 
 export function DesktopIcons({ stagger }: { stagger: boolean }) {
@@ -33,15 +43,37 @@ export function DesktopIcons({ stagger }: { stagger: boolean }) {
     }))
     if (igUrl)
       base.push({ id: 'instagram', label: 'Instagram.url', icon: 'instagram', href: igUrl })
+    base.push({
+      id: 'old-versions',
+      label: 'Old Versions',
+      icon: 'folder',
+      app: 'files',
+      props: { path: 'versions' },
+      right: true,
+    })
+    for (const v of VERSION_FILES.filter((x) => x.desktop))
+      base.push({
+        id: v.file,
+        label: v.file,
+        icon: v.icon,
+        app: 'browser',
+        props: { v: v.key },
+        right: true,
+      })
     return base
   }, [igUrl])
 
   const rows = Math.max(3, Math.floor((os.area.h + 84 - 8) / CELL))
   const defaults = useMemo(() => {
     const o: Record<string, Pos> = {}
-    items.forEach((it, i) => (o[it.id] = { c: Math.floor(i / rows), r: i % rows }))
+    const left = items.filter((it) => !it.right)
+    left.forEach((it, i) => (o[it.id] = { c: Math.floor(i / rows), r: i % rows }))
+    const maxC = Math.max(Math.floor(os.area.w / CELL) - 1, Math.ceil(left.length / rows))
+    items
+      .filter((it) => it.right)
+      .forEach((it, i) => (o[it.id] = { c: maxC - Math.floor(i / rows), r: i % rows }))
     return o
-  }, [items, rows])
+  }, [items, rows, os.area.w])
 
   const [saved, setSaved] = useState<Record<string, Pos>>(() =>
     safeParse(store.get('session', KEY), {}),
@@ -68,7 +100,7 @@ export function DesktopIcons({ stagger }: { stagger: boolean }) {
 
   const activate = (it: Item) =>
     it.app
-      ? os.open(it.app, it.app === 'files' ? { path: 'projects' } : {})
+      ? os.open(it.app, it.props ?? (it.app === 'files' ? { path: 'projects' } : {}))
       : it.href && os.external(it.href)
 
   const free = (p: Pos, except: string) =>
@@ -251,7 +283,7 @@ export function DesktopIcons({ stagger }: { stagger: boolean }) {
                 <ShortcutBadge />
               </span>
             )}
-            <span className={styles.cap}>{it.label.replace('.', '.\u200b')}</span>
+            <span className={styles.cap}>{it.label.replace(/([._])/g, '$1\u200b')}</span>
           </m.button>
         )
       })}

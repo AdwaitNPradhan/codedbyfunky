@@ -1,6 +1,7 @@
 import type { SiteData } from '@/lib/types'
 import type { IconName } from './icons'
 import type { AppId, WinProps } from './types'
+import { versionByKey } from './versions'
 
 type Meta = {
   /** Name under dock and desktop icons. */
@@ -44,7 +45,18 @@ export const META: Record<AppId, Meta> = {
   mail: { label: 'Mail', icon: 'mail', w: 620, h: 520, title: () => 'Mail' },
   resume: { label: 'Resume.pdf', icon: 'pdf', w: 660, h: 580, title: () => 'Resume.pdf' },
   settings: { label: 'Settings', icon: 'settings', w: 480, h: 420, title: () => 'Settings' },
+  browser: {
+    label: 'Browser',
+    icon: 'browser',
+    w: 960,
+    h: 620,
+    title: (p) => versionByKey(p.v)?.file ?? 'Browser',
+  },
 }
+
+/** Icon for a window. Browser windows show the icon of the version they hold. */
+export const iconOf = (app: AppId, p: WinProps = {}): IconName =>
+  app === 'browser' ? (versionByKey(p.v)?.icon ?? 'browser') : META[app].icon
 
 export const MIN_W = 320
 export const MIN_H = 220
@@ -52,9 +64,13 @@ export const MENU_H = 28
 /** Space kept free at the bottom of the desktop for the dock. */
 export const DOCK_RESERVE = 84
 
-/** Windows are singletons except preview and game, which are keyed by slug. */
+/** Windows are singletons except preview and game (keyed by slug) and browser (keyed by version). */
 export const idFor = (app: AppId, p: WinProps = {}) =>
-  app === 'preview' || app === 'game' ? `${app}:${p.slug ?? ''}` : app
+  app === 'preview' || app === 'game'
+    ? `${app}:${p.slug ?? ''}`
+    : app === 'browser'
+      ? `browser:${p.v ?? ''}`
+      : app
 
 export const DOCK_APPS: AppId[] = ['about', 'files', 'photos', 'games', 'lab', 'terminal', 'mail']
 export const DESKTOP_APPS: AppId[] = [

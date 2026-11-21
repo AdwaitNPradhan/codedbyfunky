@@ -14,6 +14,15 @@ export type IconName =
   | 'power'
   | 'back'
   | 'search'
+  | 'html'
+  | 'v_blueprint'
+  | 'v_darkroom'
+  | 'v_arcade'
+  | 'v_orbit'
+  | 'reload'
+  | 'lock'
+  | 'external'
+  | 'expand'
 
 const L = 'var(--ic-line)'
 const P = 'var(--ic-paper)'
@@ -204,6 +213,107 @@ const art: Record<string, ReactNode> = {
       <rect x="6" y="20" width="12" height="2" fill={L} />
       <rect x="6" y="24" width="8" height="2" fill={A} />
     </>
+  ),
+  browser: (
+    <>
+      <rect x="3" y="4" width="26" height="24" fill={P} stroke={L} strokeWidth="2" />
+      <rect x="3" y="4" width="26" height="6" fill={L} />
+      <rect x="6" y="6" width="2" height="2" fill={A} />
+      <rect x="10" y="6" width="2" height="2" fill={Y} />
+      <rect x="14" y="6" width="2" height="2" fill={T} />
+      <rect x="6" y="13" width="20" height="4" fill="#fff" stroke={L} strokeWidth="1" />
+      <rect x="8" y="14.5" width="8" height="1" fill={L} />
+      <rect x="6" y="20" width="20" height="5" fill={T} />
+      <rect x="9" y="22" width="6" height="1" fill={P} />
+    </>
+  ),
+  html: (
+    <>
+      <path d="M7 3h13l6 6v20H7z" fill={P} stroke={L} strokeWidth="2" />
+      <path d="M20 3v6h6" fill="#D9D2BE" stroke={L} strokeWidth="2" />
+      <path
+        d="M13 16l-3 3 3 3M20 16l3 3-3 3"
+        fill="none"
+        stroke={A}
+        strokeWidth="2"
+        strokeLinecap="square"
+      />
+    </>
+  ),
+  v_blueprint: (
+    <>
+      <path d="M7 3h13l6 6v20H7z" fill="#2A5CAA" stroke={L} strokeWidth="2" />
+      <path d="M20 3v6h6" fill="#1B3F7A" stroke={L} strokeWidth="2" />
+      <path d="M10 14h13M10 19h13M10 24h13M13 12v15M19 12v15" stroke="#9CC2F5" strokeWidth="1" />
+      <circle cx="16" cy="19" r="3.5" fill="none" stroke="#fff" strokeWidth="1.5" />
+      <rect x="15" y="18" width="2" height="2" fill="#FFD166" />
+    </>
+  ),
+  v_darkroom: (
+    <>
+      <path d="M7 3h13l6 6v20H7z" fill="#1A1411" stroke={L} strokeWidth="2" />
+      <path d="M20 3v6h6" fill="#0C0907" stroke={L} strokeWidth="2" />
+      <circle cx="15" cy="14" r="3.5" fill="#E5392F" />
+      <circle cx="14" cy="13" r="1" fill="#FF9B8F" />
+      <rect x="10" y="21" width="13" height="6" fill="#EDE6D6" />
+      <rect x="12" y="23" width="3" height="2" fill="#1A1411" />
+      <rect x="18" y="23" width="3" height="2" fill="#1A1411" />
+    </>
+  ),
+  v_arcade: (
+    <>
+      <path d="M7 3h13l6 6v20H7z" fill="#FFD166" stroke={L} strokeWidth="2" />
+      <path d="M20 3v6h6" fill="#E9B93F" stroke={L} strokeWidth="2" />
+      <circle cx="16" cy="14" r="3.5" fill="#E5392F" stroke={L} strokeWidth="2" />
+      <rect x="15" y="17" width="2" height="5" fill={L} />
+      <rect x="10" y="22" width="13" height="4" fill={L} />
+      <rect x="12" y="23" width="2" height="2" fill={T} />
+      <rect x="19" y="23" width="2" height="2" fill={A} />
+    </>
+  ),
+  v_orbit: (
+    <>
+      <path d="M7 3h13l6 6v20H7z" fill="#0E1230" stroke={L} strokeWidth="2" />
+      <path d="M20 3v6h6" fill="#070A1E" stroke={L} strokeWidth="2" />
+      <circle cx="16" cy="19" r="5" fill="#F28C38" />
+      <path d="M8 22c3 2 13-2 16-5" fill="none" stroke="#9ED7FF" strokeWidth="1.5" />
+      <rect x="11" y="10" width="1" height="1" fill="#fff" />
+      <rect x="21" y="12" width="1" height="1" fill="#fff" />
+      <rect x="13" y="26" width="1" height="1" fill="#fff" />
+    </>
+  ),
+  reload: (
+    <path
+      d="M25 14a9 9 0 1 0 1 6M26 6v8h-8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="square"
+    />
+  ),
+  lock: (
+    <>
+      <rect x="7" y="14" width="18" height="13" fill="currentColor" />
+      <path d="M11 14V10a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" strokeWidth="3" />
+    </>
+  ),
+  external: (
+    <path
+      d="M18 5h9v9M27 5L14 18M24 19v8H5V8h8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="square"
+    />
+  ),
+  expand: (
+    <path
+      d="M5 12V5h7M20 5h7v7M27 20v7h-7M12 27H5v-7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="square"
+    />
   ),
   power: (
     <>

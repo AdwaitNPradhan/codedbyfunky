@@ -23,6 +23,20 @@ export function useMedia(query: string, server = false) {
   )
 }
 
+/** True when this page runs inside an iframe (for example inside a FunkyOS browser window). */
+export const useFramed = () =>
+  useSyncExternalStore(
+    noop,
+    () => {
+      try {
+        return window.self !== window.top
+      } catch {
+        return true
+      }
+    },
+    () => false,
+  )
+
 /** `/os?plain=1` shows the content as a normal page. */
 export const usePlainParam = () =>
   useSyncExternalStore(

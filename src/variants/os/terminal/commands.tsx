@@ -5,6 +5,7 @@ import { isAppId, META } from '../appmeta'
 import type { useOS } from '../store'
 import { ACCENTS, WALLS, type Accent, type AppId, type Wall } from '../types'
 import { download, levelWord, monthYear, range, resumeFileName, slugify, social } from '../util'
+import { findVersion, modifiedLabel, VERSION_FILES } from '../versions'
 import ui from '../apps/apps.module.css'
 
 type OS = ReturnType<typeof useOS>
@@ -87,6 +88,7 @@ export function buildFS(data: SiteData, os: OS): Record<string, Node[]> {
     { name: 'photos', dir: true },
     { name: 'games', dir: true },
     { name: 'hardware', dir: true },
+    { name: 'old_versions', dir: true },
   ]
   if (s.resumeUrl)
     root.push({
@@ -139,6 +141,21 @@ export function buildFS(data: SiteData, os: OS): Record<string, Node[]> {
           <div className={ui.tHead}>{g.title}</div>
           <div className={ui.tWrap}>{g.description || g.tagline}</div>
           <Dim>controls: {g.controls}</Dim>
+        </Lines>
+      ),
+    })),
+    old_versions: VERSION_FILES.map((v) => ({
+      name: v.file,
+      open: () => os.open('browser', { v: v.key }),
+      cat: () => (
+        <Lines>
+          <div className={ui.tHead}>
+            {v.file}: {v.title}
+          </div>
+          <div className={ui.tWrap}>{v.note}</div>
+          <Dim>
+            {`modified ${modifiedLabel(v.modified)} · route /${v.key} · run \`open ${v.file}\` to launch`}
+          </Dim>
         </Lines>
       ),
     })),
@@ -382,12 +399,21 @@ export const COMMANDS: Record<string, Cmd> = {
     run: (args, ctx) => {
       const q = args.join(' ').trim()
       if (!q)
-        return 'usage: open <app | project | game | hardware>. Apps: about, files, photos, games, lab, skills, terminal, mail, resume, settings.'
+        return 'usage: open <app | project | game | hardware | old version>. Apps: about, files, photos, games, lab, skills, terminal, mail, resume, settings.'
       const { os, data } = ctx
+      if (/^(old[ _-]?versions?|versions?|browser)$/.test(lc(q))) {
+        os.open('files', { path: 'versions' })
+        return 'opening Old Versions…'
+      }
       const app = APP_ALIASES[lc(q)] ?? (isAppId(lc(q)) ? (lc(q) as AppId) : null)
       if (app && app !== 'preview' && app !== 'game') {
         os.open(app, app === 'files' ? { path: 'projects' } : {})
         return `opening ${META[app].label}…`
+      }
+      const ver = findVersion(q)
+      if (ver) {
+        os.open('browser', { v: ver.key })
+        return `opening ${ver.file}…`
       }
       const p = findProject(data, q)
       if (p) {
@@ -448,6 +474,22 @@ export const COMMANDS: Record<string, Cmd> = {
       if (path.length === 1 && fs[lc(path[0])] && path[0] !== '') return ctx.setCwd([lc(path[0])])
       return `cd: ${args[0]}: not a directory`
     },
+  },
+  versions: {
+    desc: 'list the old versions of this website',
+    run: (_a, ctx) => (
+      <Lines>
+        {VERSION_FILES.map((v) => (
+          <div key={v.file}>
+            <Run ctx={ctx} cmd={`open ${v.file}`} />{' '}
+            <Dim>
+              {modifiedLabel(v.modified)} · {v.note}
+            </Dim>
+          </div>
+        ))}
+        <Dim>{'\n`open <file>` starts one in a browser window.'}</Dim>
+      </Lines>
+    ),
   },
   pwd: { desc: 'print working directory', run: (_a, ctx) => `/${ctx.cwd.join('/')}` },
   cat: {
@@ -711,6 +753,8 @@ export function complete(line: string, ctx: Ctx): string[] {
       ...ctx.data.projects.map((p) => p.slug),
       ...ctx.data.games.map((g) => g.slug),
       ...ctx.data.hardware.map((h) => h.slug),
+      ...VERSION_FILES.map((v) => v.file),
+      'old_versions',
     ])
   else if (cmd === 'play') add(ctx.data.games.map((g) => g.slug))
   else if (cmd === 'projects') add([...ctx.data.projects.map((p) => p.slug), '--stack'])

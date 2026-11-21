@@ -245,6 +245,7 @@ export function MenuBar() {
     { label: 'Lab', onSelect: openApp('lab') },
     { label: 'Skills', onSelect: openApp('skills') },
     { label: 'Mail', onSelect: openApp('mail') },
+    { label: 'Old Versions', onSelect: () => os.open('files', { path: 'versions' }) },
     ...(gh || li || ig ? ([{ sep: true }] as MenuItem[]) : []),
     ...(gh ? ([{ label: 'GitHub ↗', href: gh, external: true }] as MenuItem[]) : []),
     ...(li ? ([{ label: 'LinkedIn ↗', href: li, external: true }] as MenuItem[]) : []),

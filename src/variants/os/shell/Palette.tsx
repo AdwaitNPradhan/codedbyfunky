@@ -6,6 +6,7 @@ import { Icon } from '../icons'
 import { useOS } from '../store'
 import type { AppId } from '../types'
 import { fuzzy, resumeFileName, social } from '../util'
+import { VERSION_FILES } from '../versions'
 import styles from '../os.module.css'
 
 type Cmd = { id: string; label: string; hint: string; kind: string; run: () => void }
@@ -58,6 +59,21 @@ export function Palette({ onClose }: { onClose: () => void }) {
         kind: 'project',
         run: () => os.open('preview', { slug: p.slug }),
       })
+    for (const v of VERSION_FILES)
+      cmds.push({
+        id: `v-${v.file}`,
+        label: v.file,
+        hint: `old version website ${v.key} ${v.title} ${v.note}`,
+        kind: 'old version',
+        run: () => os.open('browser', { v: v.key }),
+      })
+    cmds.push({
+      id: 'f-versions',
+      label: 'Old Versions folder',
+      hint: 'previous designs of this website personal website v1 final',
+      kind: 'folder',
+      run: () => os.open('files', { path: 'versions' }),
+    })
     for (const g of data.games)
       cmds.push({
         id: `g-${g.slug}`,

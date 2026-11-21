@@ -28,6 +28,7 @@ const VIEWS: Record<AppId, ComponentType<AppProps>> = {
   mail: lazy(() => import('./Mail')),
   resume: lazy(() => import('./Resume')),
   settings: lazy(() => import('./Settings')),
+  browser: lazy(() => import('./Browser')),
 }
 
 export function AppView({

@@ -3,7 +3,7 @@
 import { memo, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { animate, m, useMotionValue } from 'motion/react'
 import { AppView } from '../apps/registry'
-import { MENU_H, META, MIN_H, MIN_W } from '../appmeta'
+import { iconOf, MENU_H, META, MIN_H, MIN_W } from '../appmeta'
 import { Icon } from '../icons'
 import { useOS } from '../store'
 import type { WinState } from '../types'
@@ -250,7 +250,7 @@ export const Window = memo(function Window({
             !(e.target as HTMLElement).closest('button') && os.toggleMax(win.id)
           }
         >
-          <Icon name={META[win.app].icon} size={18} />
+          <Icon name={iconOf(win.app, win.props)} size={18} />
           <span className={styles.titleText} id={titleId}>
             {title}
           </span>

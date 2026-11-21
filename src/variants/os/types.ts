@@ -11,6 +11,7 @@ export type AppId =
   | 'mail'
   | 'resume'
   | 'settings'
+  | 'browser'
 
 export type Geo = { x: number; y: number; w: number; h: number }
 export type WinProps = Record<string, string>

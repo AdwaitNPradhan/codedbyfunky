@@ -374,6 +374,7 @@
   pointer-events: none;
 }
 .dicon .cap {
+  flex: none;
   max-width: 92px;
   font-family: var(--pixel);
   font-weight: 600;
@@ -384,7 +385,7 @@
   border-radius: 3px;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow-wrap: break-word;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.7);
@@ -1278,4 +1279,118 @@
   .snapPrev {
     animation-duration: 0.01ms !important;
   }
+}
+
+/* Shown when FunkyOS is opened inside an iframe (no second desktop). */
+.nestRoot {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background:
+    repeating-conic-gradient(rgba(255, 255, 255, 0.05) 0% 25%, transparent 0% 50%) 0 0 / 8px 8px,
+    linear-gradient(180deg, var(--desk-3), var(--desk-2) 55%, var(--desk-1));
+}
+.nest {
+  width: min(460px, 100%);
+  background: var(--chrome);
+  border: 2px solid var(--chrome-ink);
+  border-radius: 8px;
+  box-shadow: var(--bevel), 5px 5px 0 rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.nestTitle {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  background-color: var(--title-on);
+  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 4px);
+  border-bottom: 2px solid var(--chrome-ink);
+  color: var(--chrome-hi);
+  font: 700 15px var(--pixel);
+}
+.nestBody {
+  padding: 18px 20px 22px;
+  text-align: center;
+}
+.nestBody p {
+  margin: 0 auto;
+  max-width: 36ch;
+  color: var(--chrome-dim);
+  font-size: 14.5px;
+  text-wrap: pretty;
+}
+.nestH {
+  margin: 14px 0 8px;
+  font: 700 clamp(22px, 6vw, 28px) / 1.1 var(--pixel);
+  text-wrap: balance;
+}
+.nestArt {
+  display: grid;
+  place-items: center;
+}
+.nestArt i {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border: 2px solid var(--chrome-ink);
+  background: var(--chrome-hi);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+.nestArt i i {
+  background: var(--accent);
+}
+.nestArt i i i {
+  width: 22px;
+  height: 14px;
+  padding: 0;
+  background: var(--desk-2);
+}
+.nestActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 18px;
+}
+.nestPrimary,
+.nestSecondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 2px solid var(--chrome-ink);
+  border-radius: 4px;
+  font: 600 14px var(--ui);
+  color: var(--chrome-ink);
+  background: var(--chrome-hi);
+  text-decoration: none;
+  box-shadow: var(--bevel), 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+.nestPrimary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.nestPrimary:hover,
+.nestSecondary:hover {
+  filter: brightness(1.06);
+}
+.nestPrimary:active,
+.nestSecondary:active {
+  transform: translate(1px, 1px);
+}
+.nestPrimary:focus-visible,
+.nestSecondary:focus-visible {
+  outline: 3px solid var(--chrome-ink);
+  outline-offset: 2px;
+}
+
+/* The pixel font draws "fi" as a capital A ("final" reads "Anal"). Ligatures stay off in the whole OS. */
+.root *,
+.root *::before,
+.root *::after,
+.plain *,
+.plain *::before,
+.plain *::after {
+  font-variant-ligatures: none !important;
 }

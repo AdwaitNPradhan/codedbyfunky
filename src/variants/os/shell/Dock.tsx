@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import { m, useMotionValue, useSpring, useTransform, type MotionValue } from 'motion/react'
-import { DOCK_APPS, META } from '../appmeta'
+import { DOCK_APPS, iconOf, META } from '../appmeta'
 import { Icon } from '../icons'
 import { useOS } from '../store'
 import type { AppId, WinState } from '../types'
@@ -50,7 +50,7 @@ function Slot({
           data-dock-win={winId}
           onClick={onClick}
         >
-          <Icon name={META[app].icon} size={48} />
+          <Icon name={iconOf(app, win?.props)} size={48} />
         </button>
         {running && (
           <span

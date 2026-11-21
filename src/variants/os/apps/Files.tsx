@@ -6,12 +6,13 @@ import { Pic } from '../Pic'
 import { useOS } from '../store'
 import type { AppProps } from '../types'
 import { monthYear } from '../util'
+import { modifiedLabel, VERSION_FILES } from '../versions'
 import type { Img } from '@/lib/types'
 import { Empty } from './common'
 import ui from './apps.module.css'
 
-type Section = 'projects' | 'photos' | 'games' | 'hardware' | 'documents'
-type Row = { id: string; name: string; kind: string; year: string; stack: string; img: Img | null; icon: IconName; summary: string; open: () => void }
+type Section = 'projects' | 'photos' | 'games' | 'hardware' | 'documents' | 'versions'
+type Row = { id: string; name: string; kind: string; year: string; ts?: number; stack: string; img: Img | null; icon: IconName; summary: string; open: () => void }
 
 const SECTIONS: { id: Section; label: string; icon: IconName }[] = [
   { id: 'projects', label: 'Projects', icon: 'folder' },
@@ -19,6 +20,7 @@ const SECTIONS: { id: Section; label: string; icon: IconName }[] = [
   { id: 'games', label: 'Games', icon: 'games' },
   { id: 'hardware', label: 'Hardware', icon: 'chip' },
   { id: 'documents', label: 'Documents', icon: 'doc' },
+  { id: 'versions', label: 'Old Versions', icon: 'folder' },
 ]
 
 type SortKey = 'name' | 'kind' | 'year'
@@ -26,7 +28,7 @@ type SortKey = 'name' | 'kind' | 'year'
 export default function Files({ props, active }: AppProps) {
   const os = useOS()
   const { data } = os
-  const [section, setSection] = useState<Section>((props.path as Section) in { projects: 1, photos: 1, games: 1, hardware: 1, documents: 1 } ? (props.path as Section) : 'projects')
+  const [section, setSection] = useState<Section>(SECTIONS.some((s) => s.id === props.path) ? (props.path as Section) : 'projects')
   const [view, setView] = useState<'list' | 'icons'>('list')
   const [filter, setFilter] = useState('')
   const [sel, setSel] = useState<string | null>(null)
@@ -89,6 +91,19 @@ export default function Files({ props, active }: AppProps) {
           summary: h.summary,
           open: () => os.open('lab', { slug: h.slug }),
         }))
+      case 'versions':
+        return VERSION_FILES.map((v) => ({
+          id: v.file,
+          name: v.file,
+          kind: 'HTML document',
+          year: modifiedLabel(v.modified),
+          ts: Date.parse(`${v.modified}T12:00:00Z`),
+          stack: v.note,
+          img: null,
+          icon: v.icon,
+          summary: `${v.title}. ${v.note}`,
+          open: () => os.open('browser', { v: v.key }),
+        }))
       default: {
         const docs: Row[] = [{ id: 'readme', name: 'README.txt', kind: 'Text', year: '', stack: '', img: null, icon: 'about', summary: 'Who I am and how to reach me.', open: () => os.open('about') }]
         if (data.settings.resumeUrl)
@@ -104,7 +119,7 @@ export default function Files({ props, active }: AppProps) {
     return [...f].sort((a, b) => {
       const av = a[sort.k]
       const bv = b[sort.k]
-      return (sort.k === 'year' ? Number(av || 0) - Number(bv || 0) : av.localeCompare(bv)) * sort.dir
+      return (sort.k === 'year' ? (a.ts ?? Number(av || 0)) - (b.ts ?? Number(bv || 0)) : av.localeCompare(bv)) * sort.dir
     })
   }, [rows, filter, sort])
 
@@ -149,7 +164,11 @@ export default function Files({ props, active }: AppProps) {
   const onPick = (r: Row) => (os.mobile ? r.open() : setSel(r.id))
 
   return (
-    <div className={ui.files} onKeyDown={onKey}>
+    <div
+      className={ui.files}
+      onKeyDown={onKey}
+      style={section === 'versions' ? ({ '--year-w': '96px' } as React.CSSProperties) : undefined}
+    >
       <nav className={ui.side} aria-label="Locations">
         {SECTIONS.map((s) => (
           <button key={s.id} type="button" className={ui.sideBtn} aria-current={section === s.id ? 'page' : undefined} onClick={() => setSection(s.id)}>
@@ -194,8 +213,8 @@ export default function Files({ props, active }: AppProps) {
               <div className={ui.thead}>
                 {th('name', 'Name')}
                 {th('kind', 'Kind')}
-                {th('year', 'Year')}
-                <span className={ui.th}>Stack</span>
+                {th('year', section === 'versions' ? 'Modified' : 'Year')}
+                <span className={ui.th}>{section === 'versions' ? 'About' : 'Stack'}</span>
               </div>
               <ul className={ui.rows} role="listbox" aria-label={SECTIONS.find((s) => s.id === section)!.label} tabIndex={active ? 0 : -1}>
                 {shown.map((r) => (

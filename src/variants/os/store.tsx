@@ -15,6 +15,7 @@ import { useReducedMotion } from 'motion/react'
 import type { SiteData } from '@/lib/types'
 import { DOCK_RESERVE, idFor, MENU_H, META } from './appmeta'
 import { setSoundEnabled, sfx } from './sound'
+import { isVersionKey } from './versions'
 import { clamp, safeParse, store } from './util'
 import {
   DEFAULT_SETTINGS,
@@ -245,7 +246,10 @@ const SETTINGS_KEY = 'funkyos.settings.v1'
 function initState(): State {
   const raw = safeParse<State | null>(store.get('session', WINS_KEY), null)
   if (!raw || !Array.isArray(raw.wins)) return { wins: [], z: 10 }
-  const wins = raw.wins.filter((w) => w && Object.hasOwn(META, w.app) && w.geo)
+  // Browser windows are not restored: a reload would start several full old sites (one is WebGL) at once.
+  const wins = raw.wins.filter(
+    (w) => w && Object.hasOwn(META, w.app) && w.app !== 'browser' && w.geo,
+  )
   return { wins, z: Math.max(10, ...wins.map((w) => w.z || 0)) }
 }
 
@@ -324,6 +328,11 @@ export function OSProvider({
 
   const open = useCallback(
     (app: AppId, props: WinProps = {}) => {
+      // A browser window needs a version. Without one, show the Old Versions folder.
+      if (app === 'browser' && !isVersionKey(props.v)) {
+        app = 'files'
+        props = { path: 'versions' }
+      }
       const m = META[app]
       sfx.click()
       setBusy(true)
@@ -412,6 +421,10 @@ export function OSProvider({
       if (app === 'files') {
         openApp('files', { path: section || 'projects' })
         if (item && section === 'projects') openApp('preview', { slug: item })
+      } else if (app === 'browser') {
+        const v = q.get('v') ?? ''
+        if (isVersionKey(v)) openApp('browser', { v })
+        else openApp('files', { path: 'versions' })
       } else openApp(app as AppId, q.get('slug') ? { slug: q.get('slug')! } : {})
     } else if (slug) {
       openApp('preview', { slug })

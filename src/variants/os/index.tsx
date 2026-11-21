@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LazyMotion, MotionConfig, domMax } from 'motion/react'
 import type { SiteData } from '@/lib/types'
+import { FramedScreen } from './FramedScreen'
 import { fontVars } from './fonts'
-import { useMedia, useMounted, usePlainParam } from './hooks'
+import { useFramed, useMedia, useMounted, usePlainParam } from './hooks'
 import { MobileShell } from './mobile/MobileShell'
 import { PlainContent, PlainView } from './PlainPage'
 import { Boot } from './shell/Boot'
@@ -137,6 +138,7 @@ function Frame({ data }: { data: SiteData }) {
 export default function Site({ data }: { data: SiteData }) {
   const mounted = useMounted()
   const plain = usePlainParam()
+  const framed = useFramed()
   const mobile = useMedia('(max-width: 767px), (pointer: coarse) and (max-width: 1100px)')
 
   useEffect(() => {
@@ -149,6 +151,8 @@ export default function Site({ data }: { data: SiteData }) {
   }, [mounted, plain, data.settings.name])
 
   if (!mounted) return <ServerShell data={data} />
+  // Never boot a second desktop inside a FunkyOS browser window.
+  if (framed) return <FramedScreen />
   if (plain)
     return (
       <PlainView

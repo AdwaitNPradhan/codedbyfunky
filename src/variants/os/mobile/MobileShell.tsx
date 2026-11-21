@@ -181,6 +181,17 @@ export function MobileShell({ stagger }: { stagger: boolean }) {
               {META[a].label}
             </m.button>
           ))}
+          <m.button
+            type="button"
+            className={styles.hicon}
+            initial={stagger ? { opacity: 0, y: 8 } : false}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: stagger ? 0.15 + HOME_APPS.length * 0.04 : 0 }}
+            onClick={() => os.open('files', { path: 'versions' })}
+          >
+            <Icon name="html" size={56} />
+            Old versions
+          </m.button>
           {ig && (
             <a className={styles.hicon} href={ig} target="_blank" rel="noopener noreferrer" aria-label="Instagram, opens in a new tab">
               <span style={{ position: 'relative', display: 'inline-flex' }}>

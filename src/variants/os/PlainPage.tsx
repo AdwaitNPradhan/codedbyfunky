@@ -3,6 +3,7 @@ import type { SiteData } from '@/lib/types'
 import { fontVars } from './fonts'
 import { local } from './Pic'
 import { levelWord, monthYear, range, resumeFileName, social } from './util'
+import { VERSION_FILES, versionPath } from './versions'
 import styles from './os.module.css'
 
 /**
@@ -186,6 +187,17 @@ export function PlainContent({ data, visible }: { data: SiteData; visible: boole
           ))}
         </section>
       )}
+
+      <section aria-labelledby="p-old">
+        <h2 id="p-old">Earlier versions of this site</h2>
+        <ul>
+          {VERSION_FILES.filter((v) => v.desktop).map((v) => (
+            <li key={v.file}>
+              <A href={versionPath(v.key)}>{v.file}</A>: {v.note}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section aria-labelledby="p-contact">
         <h2 id="p-contact">Contact</h2>
