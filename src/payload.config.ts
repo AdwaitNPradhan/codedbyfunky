@@ -27,6 +27,7 @@ export default buildConfig({
     user: Users.slug,
     meta: { titleSuffix: ' · codedbyfunky CMS' },
     importMap: { baseDir: path.resolve(dirname) },
+    components: { afterDashboard: ['/components/admin/RestoreDoom#RestoreDoom'] },
   },
   collections: [
     Projects,
