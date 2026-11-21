@@ -31,8 +31,8 @@ const securityHeaders = [
       "media-src 'self' blob: https:",
       "font-src 'self' data:",
       "style-src 'self' 'unsafe-inline'",
-      // Next inlines bootstrap scripts; three/drei workers use blob:. 'unsafe-eval' only in dev (React refresh).
-      `script-src 'self' 'unsafe-inline' blob: https://static.cloudflareinsights.com${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
+      // Next inlines bootstrap scripts; three/drei workers use blob:; the meshopt glTF decoder needs wasm-unsafe-eval (WASM only, not JS eval). 'unsafe-eval' only in dev (React refresh).
+      `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://static.cloudflareinsights.com${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
       "worker-src 'self' blob:",
       "connect-src 'self' blob: data: https://cloudflareinsights.com",
       ...(process.env.NODE_ENV === 'production' ? ['upgrade-insecure-requests'] : []),
