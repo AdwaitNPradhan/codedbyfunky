@@ -9,6 +9,10 @@ type Doc = Record<string, any>
 
 const str = (v: unknown) => (typeof v === 'string' ? v : '')
 const strOrNull = (v: unknown) => (typeof v === 'string' && v.trim() ? v : null)
+/** CMS links reach the page only as http(s), mailto or site-relative (blocks javascript: and data:). */
+const safeUrl = (v: unknown) =>
+  /^(https?:|mailto:|\/(?!\/))/i.test(str(v).trim()) ? str(v).trim() : ''
+const safeUrlOrNull = (v: unknown) => safeUrl(v) || null
 const arr = <T = unknown>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : [])
 
 export function toImg(m: unknown): Img | null {
@@ -72,12 +76,12 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       publicEmail: strOrNull(s.publicEmail),
       socials: arr<Doc>(s.socials).map((x) => ({
         label: str(x.label),
-        url: str(x.url),
+        url: safeUrl(x.url),
         platform: str(x.platform),
       })),
       instagram: {
         handle: str(s.instagram?.handle),
-        url: str(s.instagram?.url),
+        url: safeUrl(s.instagram?.url),
         followers: str(s.instagram?.followers),
         pitch: str(s.instagram?.pitch),
       },
@@ -104,9 +108,9 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       outcome: str(d.outcome),
       metrics: arr<Doc>(d.metrics).map((m) => ({ value: str(m.value), label: str(m.label) })),
       links: {
-        live: strOrNull(d.links?.live),
-        repo: strOrNull(d.links?.repo),
-        caseStudy: strOrNull(d.links?.caseStudy),
+        live: safeUrlOrNull(d.links?.live),
+        repo: safeUrlOrNull(d.links?.repo),
+        caseStudy: safeUrlOrNull(d.links?.caseStudy),
       },
       accent: strOrNull(d.accent),
       featured: Boolean(d.featured),
@@ -153,9 +157,9 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       cover: toImg(d.cover),
       gallery: imgs(d.gallery),
       links: {
-        repo: strOrNull(d.links?.repo),
-        video: strOrNull(d.links?.video),
-        writeup: strOrNull(d.links?.writeup),
+        repo: safeUrlOrNull(d.links?.repo),
+        video: safeUrlOrNull(d.links?.video),
+        writeup: safeUrlOrNull(d.links?.writeup),
       },
       featured: Boolean(d.featured),
     })),
@@ -175,7 +179,7 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       start: d.start,
       end: d.end ?? null,
       location: str(d.location),
-      url: strOrNull(d.url),
+      url: safeUrlOrNull(d.url),
       summary: str(d.summary),
       highlights: arr<Doc>(d.highlights).map((h) => str(h.text)),
     })),

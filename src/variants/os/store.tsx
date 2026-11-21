@@ -245,7 +245,7 @@ const SETTINGS_KEY = 'funkyos.settings.v1'
 function initState(): State {
   const raw = safeParse<State | null>(store.get('session', WINS_KEY), null)
   if (!raw || !Array.isArray(raw.wins)) return { wins: [], z: 10 }
-  const wins = raw.wins.filter((w) => w && w.app in META && w.geo)
+  const wins = raw.wins.filter((w) => w && Object.hasOwn(META, w.app) && w.geo)
   return { wins, z: Math.max(10, ...wins.map((w) => w.z || 0)) }
 }
 
@@ -406,7 +406,7 @@ export function OSProvider({
         area: areaRef.current,
         mobile,
       })
-    if (app && app in META) {
+    if (app && Object.hasOwn(META, app)) {
       const path = q.get('path') || ''
       const [section, item] = path.split('/')
       if (app === 'files') {
