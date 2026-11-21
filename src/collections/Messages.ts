@@ -4,7 +4,11 @@ import { adminOnly, loggedIn, nobody } from '../access'
 /** Contact form submissions. Written only by the server action (overrideAccess); never public. */
 export const Messages: CollectionConfig = {
   slug: 'messages',
-  admin: { useAsTitle: 'email', group: 'Inbox', defaultColumns: ['name', 'email', 'topic', 'status', 'createdAt'] },
+  admin: {
+    useAsTitle: 'email',
+    group: 'Inbox',
+    defaultColumns: ['name', 'email', 'topic', 'status', 'createdAt'],
+  },
   access: { read: loggedIn, create: nobody, update: loggedIn, delete: adminOnly },
   defaultSort: '-createdAt',
   fields: [
@@ -20,7 +24,11 @@ export const Messages: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     { name: 'emailed', type: 'checkbox', admin: { position: 'sidebar', readOnly: true } },
-    { name: 'source', type: 'text', admin: { position: 'sidebar', readOnly: true, description: 'Which page variant' } },
+    {
+      name: 'source',
+      type: 'text',
+      admin: { position: 'sidebar', readOnly: true, description: 'Which page variant' },
+    },
     { name: 'ipHash', type: 'text', admin: { position: 'sidebar', readOnly: true } },
   ],
 }

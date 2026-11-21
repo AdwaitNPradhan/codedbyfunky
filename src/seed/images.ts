@@ -34,7 +34,9 @@ export async function makeImage(kind: Kind, i: number, label: string, w = 1600, 
     }
   } else if (kind === 'hardware') {
     for (let k = 0; k < 26; k++) {
-      const x = r() * w, y = r() * h, x2 = x + (r() - 0.5) * 600
+      const x = r() * w,
+        y = r() * h,
+        x2 = x + (r() - 0.5) * 600
       body += `<path d="M${x} ${y} H${x2} V${y + (r() - 0.5) * 400}" stroke="${a}" stroke-width="6" fill="none" opacity="0.7"/>`
       body += `<circle cx="${x}" cy="${y}" r="12" fill="${b}"/>`
     }

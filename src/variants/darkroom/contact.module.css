@@ -1,0 +1,151 @@
+/* Contact: the light "print" section, plus footer */
+
+.contact {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  padding-top: clamp(96px, 15vw, 220px);
+}
+/* Ink cover that wipes up to reveal paper. Collapsed by default so nothing is hidden without scripting. */
+.cover {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100svh;
+  z-index: 5;
+  background: var(--ink);
+  pointer-events: none;
+  clip-path: inset(0% 0% 100% 0%);
+}
+.giant {
+  font-size: clamp(3.6rem, 16vw, 16rem);
+  margin-bottom: clamp(36px, 6vw, 88px);
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(40px, 6vw, 112px);
+  align-items: start;
+}
+.side { display: grid; gap: 28px; justify-items: start; }
+.avail { max-width: 36ch; font-size: 18px; color: var(--ash-dark); }
+.emailRow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.email {
+  font-family: var(--f-display);
+  font-size: clamp(1.8rem, 3.6vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.under {
+  text-decoration: underline;
+  text-decoration-color: var(--safelight-ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  transition: text-decoration-color var(--dur-small) var(--ease-out);
+}
+.under:hover { text-decoration-color: var(--ink); }
+.copy {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color var(--dur-micro) linear, color var(--dur-micro) linear;
+}
+.copy:hover { background: var(--ink); color: var(--paper); }
+.resume {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  min-height: 48px;
+  padding: 0 24px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: transform var(--dur-small) var(--ease-out);
+}
+.resume:hover { transform: translateY(-2px); }
+.updated { color: var(--ash); font-weight: 400; }
+.links { display: flex; flex-wrap: wrap; gap: 6px 26px; font-weight: 500; }
+.links a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+
+.form { display: grid; gap: 22px; }
+.field { display: grid; gap: 6px; }
+.field label {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--ash-dark);
+}
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 12px 0;
+  font: inherit;
+  font-size: 19px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+  resize: vertical;
+  caret-color: var(--safelight-ink);
+}
+.field input::placeholder,
+.field textarea::placeholder { color: var(--ash-dark); }
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+.field [aria-invalid='true'] { border-bottom-color: var(--safelight-deep); border-bottom-width: 2px; }
+.err { color: var(--safelight-deep); font-size: 15px; font-weight: 500; }
+.submitRow { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; }
+.send { min-width: 200px; }
+.status { max-width: 40ch; font-size: 16px; min-height: 1.5em; }
+.status[data-ok='true'] { color: var(--ink); font-weight: 600; }
+.status[data-ok='false'] { color: var(--safelight-deep); }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  background: var(--paper);
+  color: var(--ink);
+  padding: clamp(56px, 8vw, 120px) var(--pad) 48px;
+  border-top: 1px solid var(--line-paper);
+}
+.footIg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: clamp(28px, 4vw, 56px);
+  border-bottom: 1px solid var(--ink);
+}
+.footIg > span:first-child {
+  font-size: clamp(2.6rem, 8vw, 8rem);
+  transition: transform 0.5s var(--ease-out);
+  overflow-wrap: anywhere;
+}
+.footIg:hover > span:first-child { transform: translateX(14px); }
+.footArrow { color: var(--safelight-ink); flex: none; }
+.footRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 28px;
+  min-height: 44px;
+  color: var(--ash-dark);
+}
+@media (prefers-reduced-motion: reduce) {
+  .footIg > span:first-child, .resume, .copy, .under { transition: none; }
+}

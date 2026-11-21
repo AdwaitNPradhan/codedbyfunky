@@ -14,7 +14,16 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     // Explicit raster list: SVG is excluded because it can carry script (stored XSS on our origin).
-    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif', 'video/mp4', 'video/webm', 'application/pdf'],
+    mimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/avif',
+      'image/gif',
+      'video/mp4',
+      'video/webm',
+      'application/pdf',
+    ],
     focalPoint: true,
     formatOptions: { format: 'webp', options: { quality: 82 } },
     imageSizes: [

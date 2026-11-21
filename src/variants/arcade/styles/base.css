@@ -1,0 +1,441 @@
+/* ARCADE variant — tokens, type, controls. Everything is scoped under [data-variant='arcade']. */
+
+@property --ar-hue {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+html:has([data-variant='arcade']) {
+  --ar-ink: #111111;
+  --ar-cream: #fff4d6;
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+  scrollbar-color: var(--ar-ink) var(--ar-cream);
+}
+html:has([data-variant='arcade'] dialog[open]) {
+  overflow: hidden;
+}
+
+[data-variant='arcade'] {
+  /* palette (tokens) */
+  --ink: #111111;
+  --cream: #fff4d6;
+  --pink: #ff5ca8;
+  --yellow: #ffd500;
+  --blue: #4d7cff;
+  --mint: #2ee6a6;
+  --orange: #ff6a3d;
+  --lilac: #b69cff;
+  --ink-soft: #5a5346;
+  --white: #ffffff;
+  --ar-hue: 0;
+
+  /* type */
+  --font-display: var(--ar-font-display), 'Arial Narrow', sans-serif;
+  --font-body: var(--ar-font-body), system-ui, sans-serif;
+  --font-pixel: var(--ar-font-pixel), ui-monospace, monospace;
+
+  /* shape + elevation (hard shadows, static: swapped by class, never tweened) */
+  --b: 3px;
+  --shadow: 6px 6px 0 var(--ink);
+  --shadow-sm: 4px 4px 0 var(--ink);
+  --shadow-lg: 12px 12px 0 var(--ink);
+  --ring: var(--ink);
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-press: cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  --dur-micro: 150ms;
+  --dur-small: 250ms;
+  --dur-medium: 400ms;
+  --dur-large: 600ms;
+
+  --gutter: clamp(16px, 3vw, 32px);
+  --wrap: 1360px;
+
+  position: relative;
+  min-height: 100dvh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.5;
+  overflow-x: clip;
+  caret-color: var(--ink);
+  accent-color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  transition: --ar-hue 0.6s var(--ease-in-out);
+}
+
+/* Konami palette swap: same lightness and chroma, rotated hue, so every contrast ratio holds. */
+@supports (color: oklch(from red l c h)) {
+  [data-variant='arcade'] {
+    --pink: oklch(from #ff5ca8 l c calc(h + var(--ar-hue)));
+    --yellow: oklch(from #ffd500 l c calc(h + var(--ar-hue)));
+    --blue: oklch(from #4d7cff l c calc(h + var(--ar-hue)));
+    --mint: oklch(from #2ee6a6 l c calc(h + var(--ar-hue)));
+    --orange: oklch(from #ff6a3d l c calc(h + var(--ar-hue)));
+    --lilac: oklch(from #b69cff l c calc(h + var(--ar-hue)));
+  }
+}
+[data-variant='arcade'][data-hue='on'] {
+  --ar-hue: 140;
+}
+
+[data-variant='arcade'] *,
+[data-variant='arcade'] *::before,
+[data-variant='arcade'] *::after {
+  box-sizing: border-box;
+}
+[data-variant='arcade'] ::selection {
+  background: var(--ink);
+  color: var(--yellow);
+}
+[data-variant='arcade'] :focus-visible {
+  outline: 4px solid var(--ring);
+  outline-offset: 3px;
+}
+[data-variant='arcade'] :focus:not(:focus-visible) {
+  outline: none;
+}
+[data-variant='arcade'] img {
+  -webkit-user-drag: none;
+}
+[data-variant='arcade'] a {
+  color: inherit;
+}
+[data-variant='arcade'] button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+[data-variant='arcade'] kbd {
+  font-family: var(--font-pixel);
+  font-size: 0.7em;
+  border: 2px solid var(--ink);
+  padding: 0 0.4em;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+/* ---------- Type ---------- */
+[data-variant='arcade'] .ar-h1,
+[data-variant='arcade'] .ar-h2,
+[data-variant='arcade'] .ar-h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+[data-variant='arcade'] .ar-h1 {
+  font-size: clamp(3rem, 9vw, 8rem);
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  font-variation-settings: 'wdth' 75, 'opsz' 96;
+}
+[data-variant='arcade'] .ar-h2 {
+  font-size: clamp(2.9rem, 8.2vw, 6.5rem);
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'wdth' 75, 'opsz' 96;
+}
+[data-variant='arcade'] .ar-h2--md {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  padding-right: 120px;
+}
+[data-variant='arcade'] .ar-h3 {
+  font-size: clamp(1.3rem, 2.3vw, 1.7rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'wdth' 85, 'opsz' 36;
+}
+[data-variant='arcade'] .ar-lede {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 1.125rem;
+  text-wrap: pretty;
+}
+[data-variant='arcade'] .ar-lede--big {
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.4;
+  font-weight: 600;
+}
+[data-variant='arcade'] p {
+  text-wrap: pretty;
+}
+
+/* ---------- Buttons (hover lifts, press squashes, release overshoots) ---------- */
+[data-variant='arcade'] .ar-btn {
+  --bg: var(--cream);
+  --fg: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0.6em 1.25em;
+  border: var(--b) solid var(--ink);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.1;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s var(--ease-press);
+  -webkit-tap-highlight-color: transparent;
+}
+[data-variant='arcade'] .ar-btn--sm {
+  min-height: 44px;
+  padding: 0.45em 1em;
+  font-size: 0.95rem;
+}
+[data-variant='arcade'] .ar-btn--pink {
+  --bg: var(--pink);
+}
+[data-variant='arcade'] .ar-btn--yellow {
+  --bg: var(--yellow);
+}
+[data-variant='arcade'] .ar-btn--mint {
+  --bg: var(--mint);
+}
+[data-variant='arcade'] .ar-btn--ink {
+  --bg: var(--ink);
+  --fg: var(--cream);
+  box-shadow: 4px 4px 0 var(--cream), 4px 4px 0 3px var(--ink);
+}
+[data-variant='arcade'] .ar-btn--giant {
+  min-height: 76px;
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variation-settings: 'wdth' 80;
+}
+@media (hover: hover) {
+  [data-variant='arcade'] .ar-btn:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--ink);
+  }
+  [data-variant='arcade'] .ar-btn--ink:hover {
+    box-shadow: 9px 9px 0 var(--cream), 9px 9px 0 3px var(--ink);
+  }
+}
+[data-variant='arcade'] .ar-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 2px 2px 0 var(--ink);
+  transition-duration: 0.09s;
+  transition-timing-function: ease-out;
+}
+[data-variant='arcade'] .ar-btn--ink:active {
+  box-shadow: 2px 2px 0 var(--cream), 2px 2px 0 3px var(--ink);
+}
+[data-variant='arcade'] .ar-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+  transform: none;
+}
+
+/* Pills: nav + filters */
+[data-variant='arcade'] .ar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  min-height: 44px;
+  padding: 0.3em 1em;
+  border: var(--b) solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.12s var(--ease-press);
+}
+[data-variant='arcade'] .ar-pill--lg {
+  min-height: 56px;
+  font-size: 1.2rem;
+  justify-content: center;
+}
+[data-variant='arcade'] .ar-pill--pink {
+  background: var(--pink);
+}
+[data-variant='arcade'] .ar-pill.is-active,
+[data-variant='arcade'] .ar-pill[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--cream);
+  box-shadow: 3px 3px 0 var(--cream), 3px 3px 0 3px var(--ink);
+}
+@media (hover: hover) {
+  [data-variant='arcade'] .ar-pill:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  [data-variant='arcade'] .ar-pill.is-active:hover,
+  [data-variant='arcade'] .ar-pill[aria-pressed='true']:hover {
+    box-shadow: 6px 6px 0 var(--cream), 6px 6px 0 3px var(--ink);
+  }
+}
+[data-variant='arcade'] .ar-pill:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+  transition-duration: 0.09s;
+}
+
+/* Chips + dots */
+[data-variant='arcade'] .ar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.2em 0.8em;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-chip--mint {
+  background: var(--mint);
+}
+[data-variant='arcade'] .ar-chip--cream {
+  background: var(--cream);
+}
+[data-variant='arcade'] .ar-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink);
+  animation: ar-blink 1.2s steps(2) infinite;
+}
+[data-variant='arcade'] .ar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-tags li {
+  padding: 1px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--white);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Tone surfaces */
+[data-variant='arcade'] .tone-pink {
+  background: var(--pink);
+}
+[data-variant='arcade'] .tone-yellow {
+  background: var(--yellow);
+}
+[data-variant='arcade'] .tone-blue {
+  background: var(--blue);
+}
+[data-variant='arcade'] .tone-mint {
+  background: var(--mint);
+}
+[data-variant='arcade'] .tone-orange {
+  background: var(--orange);
+}
+[data-variant='arcade'] .tone-lilac {
+  background: var(--lilac);
+}
+[data-variant='arcade'] .tone-cream {
+  background: var(--cream);
+}
+
+/* Draggable toys */
+[data-variant='arcade'] .ar-drag {
+  position: relative;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Links and images inside a toy must never start the browser's own drag-and-drop. */
+[data-variant='arcade'] .ar-drag a,
+[data-variant='arcade'] .ar-drag img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+[data-variant='arcade'] .ar-drag.is-dragging {
+  cursor: grabbing;
+  will-change: transform;
+}
+[data-variant='arcade'] .ar-drag:not([data-draggable]) {
+  cursor: auto;
+}
+
+/* Art */
+[data-variant='arcade'] .ar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: var(--fill, var(--yellow));
+  stroke: var(--ink);
+  stroke-width: 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+[data-variant='arcade'] .ar-art__ink {
+  fill: var(--ink);
+}
+[data-variant='arcade'] .ar-art__text {
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 19px;
+  fill: var(--ink);
+  stroke: none;
+}
+[data-variant='arcade'] .ar-icon {
+  flex: none;
+}
+
+@keyframes ar-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes ar-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes ar-pop {
+  from {
+    scale: 0.92;
+    opacity: 0;
+  }
+  to {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-only-desktop {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-variant='arcade'] .ar-dot {
+    animation: none;
+  }
+}

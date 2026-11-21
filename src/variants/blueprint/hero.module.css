@@ -1,0 +1,326 @@
+/* Sheet 01: headline, actions, spec strip + the scrubbed exploded view */
+
+.hero {
+  position: relative;
+  height: 150vh;
+}
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  min-height: 600px;
+  display: flex;
+  padding-top: calc(var(--frame) + var(--bar) + 12px);
+  padding-bottom: calc(var(--frame) + 24px);
+}
+.layout {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: var(--gl) var(--gr);
+  display: grid;
+  grid-template-columns: minmax(0, 15fr) minmax(0, 9fr);
+  gap: clamp(24px, 3.4vw, 56px);
+  align-items: center;
+  margin-block: auto; /* centred, but top-aligned (never clipped under the bar) if content is taller than the view */
+}
+.copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.h1 {
+  font-variation-settings: 'wdth' 106, 'wght' 700;
+  font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.mask {
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.lede {
+  max-width: 54ch;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--line);
+  text-wrap: pretty;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 12px;
+}
+.spec {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line-dim);
+  margin-top: 8px;
+}
+.spec > div {
+  min-width: 0;
+  padding: 10px 16px 10px 0;
+  border-bottom: 1px solid var(--line-faint);
+}
+.spec dt {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--line-dim);
+}
+.spec dd {
+  font-size: 15px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.status i {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.status i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--amber);
+  animation: ping 2.4s var(--ease-out) infinite;
+}
+@keyframes ping {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+.statusNote {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--line-dim);
+}
+
+/* ── figure ── */
+.figure {
+  min-width: 0;
+  align-self: start; /* top-aligned so the legend stays clear of the title block and tool chips fixed bottom-right */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.exploded {
+  width: 100%;
+  height: auto;
+  max-height: clamp(260px, calc(100dvh - 400px), 600px);
+  overflow: visible;
+}
+.layer {
+  cursor: pointer;
+}
+.face {
+  fill: var(--paper-deep);
+  stroke: var(--line);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--dur-small) var(--ease-out);
+}
+.sideL,
+.sideR {
+  stroke: var(--line);
+  stroke-width: 1.5px;
+  stroke-linejoin: miter;
+}
+.sideL {
+  fill: color-mix(in srgb, var(--paper-deep) 86%, var(--line));
+}
+.sideR {
+  fill: color-mix(in srgb, var(--paper-deep) 72%, var(--paper));
+}
+.top rect:not(.face),
+.top path,
+.top circle {
+  fill: none;
+  stroke: var(--line-dim);
+  stroke-width: 1.25px;
+  vector-effect: non-scaling-stroke;
+}
+.leader {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1.25px;
+}
+.leaderDot {
+  fill: var(--amber);
+}
+.badge circle {
+  fill: var(--amber);
+}
+.badge text {
+  fill: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 700;
+}
+.layer[data-active='true'] .face {
+  fill: color-mix(in srgb, var(--paper-deep) 82%, var(--amber));
+  stroke: var(--amber);
+}
+.layer[data-active='true'] .sideL,
+.layer[data-active='true'] .sideR {
+  stroke: var(--amber);
+}
+.layer[data-active='true'] .top rect:not(.face),
+.layer[data-active='true'] .top path,
+.layer[data-active='true'] .top circle {
+  stroke: var(--amber);
+}
+.legendCap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--line-dim);
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  counter-reset: ly;
+}
+.legend li {
+  counter-increment: ly;
+}
+.legend button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 10px 0 6px;
+  border: 1px solid var(--line-faint);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--line);
+  cursor: pointer;
+  transition: border-color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
+}
+.legend button:hover,
+.legend button[data-active='true'] {
+  border-color: var(--amber);
+  background: var(--amber-wash);
+}
+.legendNo {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--amber);
+  color: var(--paper);
+  font-weight: 700;
+}
+.legendNo::before {
+  content: counter(ly);
+}
+
+@media (pointer: coarse) {
+  .legend button {
+    min-height: 44px;
+  }
+}
+
+@media print {
+  .hero {
+    height: auto;
+  }
+  .sticky {
+    position: static;
+    height: auto;
+  }
+}
+
+/* tablet and phone: linear, no sticky range */
+@media (max-width: 899px) {
+  .hero {
+    height: auto;
+  }
+  .sticky {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    padding-top: calc(var(--frame) + var(--bar) + 32px);
+    padding-bottom: 48px;
+  }
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .exploded {
+    max-height: 520px;
+  }
+  .figure {
+    max-width: 440px;
+    margin-inline: auto;
+    align-self: auto;
+  }
+}
+@media (max-width: 767px) {
+  .copy {
+    gap: 20px;
+  }
+  .h1 {
+    font-size: clamp(2.25rem, 10.5vw, 3rem);
+  }
+  .lede {
+    font-size: 17px;
+  }
+  .actions > a:not(:last-child) {
+    flex: 1 1 140px;
+  }
+  .spec {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .exploded {
+    max-height: 440px;
+  }
+  .layer[data-mobile='hide'],
+  .legend li[data-mobile='hide'] {
+    display: none;
+  }
+}

@@ -58,12 +58,18 @@ function rateLimited(key: string) {
  * as the rightmost X-Forwarded-For hop). Leftmost hops are client-controlled and spoofable.
  */
 function clientIp(h: Headers) {
-  const hops = (h.get('x-forwarded-for') ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+  const hops = (h.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   return hops.at(-1) || h.get('x-real-ip') || 'unknown'
 }
 
 const esc = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+  s.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+  )
 
 export async function sendContact(_prev: ContactState, form: FormData): Promise<ContactState> {
   const quietOk: ContactState = { ok: true, message: 'Thanks! I will reply soon.' }
@@ -92,9 +98,16 @@ export async function sendContact(_prev: ContactState, form: FormData): Promise<
 
   const h = await headers()
   const ip = clientIp(h)
-  const ipHash = crypto.createHash('sha256').update(ip + (process.env.PAYLOAD_SECRET ?? '')).digest('hex').slice(0, 16)
+  const ipHash = crypto
+    .createHash('sha256')
+    .update(ip + (process.env.PAYLOAD_SECRET ?? ''))
+    .digest('hex')
+    .slice(0, 16)
   if (rateLimited(ipHash)) {
-    return { ok: false, message: 'Too many messages from you in a short time. Try again in a few minutes.' }
+    return {
+      ok: false,
+      message: 'Too many messages from you in a short time. Try again in a few minutes.',
+    }
   }
 
   const payload = await getPayload({ config })
@@ -120,11 +133,19 @@ export async function sendContact(_prev: ContactState, form: FormData): Promise<
       text: `${data.name} <${data.email}>\nTopic: ${data.topic || '-'}\nVia: ${data.source || '-'}\n\n${data.message}`,
       html: `<p><b>${esc(data.name)}</b> &lt;${esc(data.email)}&gt;<br/>Topic: ${esc(data.topic || '-')}<br/>Via: ${esc(data.source || '-')}</p><p style="white-space:pre-wrap">${esc(data.message)}</p>`,
     })
-    await payload.update({ collection: 'messages', id: saved.id, overrideAccess: true, data: { emailed: true } })
+    await payload.update({
+      collection: 'messages',
+      id: saved.id,
+      overrideAccess: true,
+      data: { emailed: true },
+    })
   } catch (err) {
     // Message is saved in the CMS inbox even if mail fails.
     payload.logger.error({ err }, 'contact email failed')
   }
 
-  return { ok: true, message: `Thanks ${data.name.split(' ')[0]}! Your message landed. I usually reply within a day.` }
+  return {
+    ok: true,
+    message: `Thanks ${data.name.split(' ')[0]}! Your message landed. I usually reply within a day.`,
+  }
 }

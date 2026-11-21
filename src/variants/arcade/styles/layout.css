@@ -1,0 +1,628 @@
+/* Shell: skip link, veil, nav, slabs, marquee, hero, footer. */
+
+[data-variant='arcade'] .ar-skip {
+  position: absolute;
+  left: 16px;
+  top: -120px;
+  z-index: 300;
+  padding: 12px 18px;
+  background: var(--yellow);
+  border: var(--b) solid var(--ink);
+  font-weight: 700;
+}
+[data-variant='arcade'] .ar-skip:focus {
+  top: 12px;
+}
+[data-variant='arcade'] .ar-wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Veil (PRESS START). CSS failsafe hides it even if JS never runs. ---------- */
+[data-variant='arcade'] .ar-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  animation: ar-veil-failsafe 0s 2.8s forwards;
+}
+@keyframes ar-veil-failsafe {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+[data-variant='arcade'] .ar-veil__bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+  border-right: var(--b) solid var(--ink);
+}
+[data-variant='arcade'] .ar-veil__sheet {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--cream);
+}
+[data-variant='arcade'] .ar-veil__press {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 6vw, 2.6rem);
+  letter-spacing: 0.06em;
+  animation: ar-blink 0.8s steps(2) infinite;
+}
+
+/* ---------- Nav ---------- */
+[data-variant='arcade'] .ar-nav {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding: 12px var(--gutter) 0;
+  pointer-events: none;
+  margin-bottom: -70px;
+}
+[data-variant='arcade'] .ar-nav.is-stuck {
+  padding-bottom: 10px;
+  background: var(--cream);
+  border-bottom: var(--b) solid var(--ink);
+  pointer-events: auto;
+}
+[data-variant='arcade'] .ar-nav__bar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(var(--wrap) - 2 * var(--gutter));
+  margin-inline: auto;
+}
+[data-variant='arcade'] .ar-nav__logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 18px;
+  background: var(--yellow);
+  border: var(--b) solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  rotate: -2deg;
+  transition: rotate 0.2s var(--ease-back);
+  font-variation-settings: 'wdth' 80;
+}
+[data-variant='arcade'] .ar-nav__logo:hover {
+  rotate: 2deg;
+}
+[data-variant='arcade'] .ar-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px;
+}
+[data-variant='arcade'] .ar-nav__tools {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+[data-variant='arcade'] .ar-pill--coin,
+[data-variant='arcade'] .ar-pill--sound {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  background: var(--yellow);
+}
+[data-variant='arcade'] .ar-pill--sound {
+  background: var(--cream);
+}
+[data-variant='arcade'] .ar-coin-num {
+  font-variant-numeric: tabular-nums;
+  animation: ar-coin-pop 0.35s var(--ease-back);
+}
+@keyframes ar-coin-pop {
+  from {
+    scale: 1.5;
+  }
+  to {
+    scale: 1;
+  }
+}
+[data-variant='arcade'] .ar-nav__menu {
+  display: none;
+}
+[data-variant='arcade'] .ar-nav__panel {
+  pointer-events: auto;
+  display: grid;
+  gap: 10px;
+  max-width: calc(var(--wrap) - 2 * var(--gutter));
+  margin: 12px auto 0;
+  padding: 16px;
+  background: var(--cream);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow);
+}
+[data-variant='arcade'] .ar-nav__panel-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+[data-variant='arcade'] .ar-bottombar {
+  display: none;
+}
+
+@media (max-width: 1099px) {
+  [data-variant='arcade'] .ar-pill--sound {
+    display: none;
+  }
+}
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-nav__links {
+    display: none;
+  }
+  [data-variant='arcade'] .ar-nav__menu {
+    display: inline-flex;
+  }
+  [data-variant='arcade'] .ar-nav__tools {
+    margin-left: auto;
+  }
+  [data-variant='arcade'] .ar-bottombar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 55;
+    display: flex;
+    gap: 10px;
+    padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+    background: var(--cream);
+    border-top: var(--b) solid var(--ink);
+    transition: transform 0.25s var(--ease-out);
+  }
+  [data-variant='arcade'] .ar-bottombar .ar-btn {
+    flex: 1;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  [data-variant='arcade'] .ar-bottombar.is-hidden {
+    transform: translateY(120%);
+  }
+}
+
+/* ---------- Slabs ---------- */
+[data-variant='arcade'] .ar-slab {
+  position: relative;
+  border-top: var(--b) solid var(--ink);
+  padding-block: clamp(56px, 9vw, 120px);
+}
+[data-variant='arcade'] .ar-slab--yellow {
+  background: var(--yellow);
+}
+[data-variant='arcade'] .ar-slab--cream {
+  background: var(--cream);
+}
+[data-variant='arcade'] .ar-slab--pink {
+  background: var(--pink);
+}
+[data-variant='arcade'] .ar-slab--blue {
+  background: var(--blue);
+}
+[data-variant='arcade'] .ar-slab--mint {
+  background: var(--mint);
+}
+[data-variant='arcade'] .ar-slab--orange {
+  background: var(--orange);
+}
+[data-variant='arcade'] .ar-slab--lilac {
+  background: var(--lilac);
+}
+[data-variant='arcade'] .ar-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 20px 40px;
+  margin-bottom: clamp(28px, 5vw, 56px);
+}
+[data-variant='arcade'] .ar-head__aside {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+  max-width: 34ch;
+}
+[data-variant='arcade'] .ar-count {
+  display: inline-block;
+  margin-left: 0.35em;
+  padding: 0.3em 0.7em;
+  border: var(--b) solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 0.2em;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  vertical-align: 0.9em;
+  rotate: -6deg;
+}
+[data-variant='arcade'] .ar-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+[data-variant='arcade'] .ar-more {
+  margin: 36px 0 0;
+  text-align: center;
+}
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-head__aside {
+    max-width: none;
+  }
+}
+
+/* ---------- Marquee ---------- */
+[data-variant='arcade'] .ar-marquee {
+  position: relative;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--cream);
+  border-top: var(--b) solid var(--ink);
+}
+[data-variant='arcade'] .ar-marquee--cream {
+  background: var(--cream);
+  color: var(--ink);
+  border-block: var(--b) solid var(--ink);
+}
+[data-variant='arcade'] .ar-marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+[data-variant='arcade'] .ar-marquee__line {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-right: 28px;
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+[data-variant='arcade'] .ar-marquee__gem {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+[data-variant='arcade'] .ar-marquee.is-static .ar-marquee__track {
+  width: 100%;
+  justify-content: center;
+}
+[data-variant='arcade'] .ar-marquee.is-static .ar-marquee__line {
+  overflow: hidden;
+  justify-content: center;
+}
+
+/* ---------- Hero ---------- */
+[data-variant='arcade'] .ar-hero {
+  border-top: 0;
+  padding-top: clamp(96px, 11vw, 124px);
+  padding-bottom: clamp(48px, 6vw, 84px);
+}
+[data-variant='arcade'] .ar-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 24px 32px;
+  align-items: center;
+}
+[data-variant='arcade'] .ar-hero__copy {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  justify-items: start;
+}
+[data-variant='arcade'] .ar-line {
+  display: block;
+  white-space: nowrap;
+}
+[data-variant='arcade'] .ar-word {
+  display: inline-block;
+}
+[data-variant='arcade'] .ar-hero .ar-h1 {
+  padding-bottom: 0.1em;
+}
+[data-variant='arcade'] .ar-word--pink {
+  padding: 0.03em 0.1em 0.12em;
+  background: var(--pink);
+  border: var(--b) solid var(--ink);
+  rotate: -1.5deg;
+  box-shadow: var(--shadow-sm);
+}
+[data-variant='arcade'] .ar-word--ink {
+  padding: 0.03em 0.1em 0.12em;
+  background: var(--ink);
+  color: var(--cream);
+  rotate: 1deg;
+}
+[data-variant='arcade'] .ar-hero__sub {
+  margin: 0;
+  max-width: 44ch;
+  font-size: clamp(1.1rem, 1.7vw, 1.35rem);
+  line-height: 1.4;
+  font-weight: 600;
+}
+[data-variant='arcade'] .ar-hero__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+/* Desktop: spilled card pile */
+[data-variant='arcade'] .ar-pile {
+  position: relative;
+  height: clamp(460px, 62vh, 620px);
+}
+[data-variant='arcade'] .ar-herocard {
+  position: absolute;
+  width: min(47%, 240px);
+  aspect-ratio: 4 / 5;
+}
+[data-variant='arcade'] .ar-herocard--about {
+  left: 1%;
+  top: 12%;
+}
+[data-variant='arcade'] .ar-herocard--work {
+  left: 49%;
+  top: 0;
+}
+[data-variant='arcade'] .ar-herocard--play {
+  left: 8%;
+  top: 50%;
+}
+[data-variant='arcade'] .ar-herocard--photos {
+  left: 52%;
+  top: 44%;
+}
+[data-variant='arcade'] .ar-herocard__face {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  text-decoration: none;
+}
+[data-variant='arcade'] .ar-drag.is-dragging > .ar-herocard__face,
+[data-variant='arcade'] .ar-drag.is-dragging .ar-pcard,
+[data-variant='arcade'] .ar-drag.is-dragging .ar-fact {
+  box-shadow: var(--shadow-lg);
+}
+[data-variant='arcade'] .ar-glyph {
+  width: 64px;
+  height: 64px;
+  fill: var(--cream);
+  stroke: var(--ink);
+  stroke-width: 3.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+[data-variant='arcade'] .ar-herocard__face > .ar-icon {
+  margin-top: auto;
+}
+[data-variant='arcade'] .ar-herocard__label {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'wdth' 75, 'opsz' 72;
+}
+[data-variant='arcade'] .ar-herocard__sub {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+[data-variant='arcade'] .ar-sticker {
+  position: absolute;
+  width: 78px;
+  height: 78px;
+}
+[data-variant='arcade'] .ar-sticker__link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+[data-variant='arcade'] .ar-st-1 {
+  left: 40%;
+  top: 38%;
+  width: 70px;
+  height: 70px;
+}
+[data-variant='arcade'] .ar-st-2 {
+  right: 2%;
+  top: 84%;
+  width: 92px;
+  height: 92px;
+}
+[data-variant='arcade'] .ar-st-3 {
+  left: 0;
+  top: 2%;
+  width: 84px;
+  height: 84px;
+}
+[data-variant='arcade'] .ar-st-4 {
+  right: 4%;
+  top: 28%;
+  width: 84px;
+  height: 66px;
+}
+[data-variant='arcade'] .ar-st-5 {
+  left: 38%;
+  top: 80%;
+  width: 112px;
+  height: 112px;
+}
+[data-variant='arcade'] .ar-pile__shuffle {
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  z-index: 90;
+}
+
+/* Mobile: swipeable deck */
+[data-variant='arcade'] .ar-deck {
+  display: none;
+}
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-hero__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-pile {
+    display: none;
+  }
+  [data-variant='arcade'] .ar-deck {
+    display: grid;
+    gap: 16px;
+    justify-items: center;
+    margin-top: 20px;
+  }
+  [data-variant='arcade'] .ar-deck__stack {
+    position: relative;
+    width: min(100%, 300px);
+    height: 330px;
+  }
+  [data-variant='arcade'] .ar-deck__card {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 270px;
+    touch-action: pan-y;
+  }
+  [data-variant='arcade'] .ar-herocard__face {
+    box-shadow: var(--shadow-sm);
+  }
+  [data-variant='arcade'] .ar-sticker {
+    width: 64px;
+    height: 64px;
+  }
+  [data-variant='arcade'] .ar-dk-1 {
+    right: -8px;
+    top: -26px;
+    z-index: 30;
+  }
+  [data-variant='arcade'] .ar-dk-2 {
+    left: -10px;
+    bottom: 6px;
+    width: 72px;
+    height: 72px;
+    z-index: 30;
+  }
+  [data-variant='arcade'] .ar-dk-3 {
+    right: -4px;
+    bottom: 10px;
+    width: 76px;
+    height: 76px;
+    z-index: 30;
+  }
+  [data-variant='arcade'] .ar-hero__actions .ar-btn {
+    flex: 1 1 calc(50% - 7px);
+    min-width: 140px;
+  }
+  [data-variant='arcade'] .ar-hero__actions .ar-btn--ink {
+    flex-basis: 100%;
+  }
+}
+
+/* ---------- Footer ---------- */
+[data-variant='arcade'] .ar-footer {
+  --ring: var(--cream);
+  background: var(--ink);
+  color: var(--cream);
+  border-top: var(--b) solid var(--ink);
+  padding-block: 28px;
+  font-size: 0.95rem;
+}
+[data-variant='arcade'] .ar-footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+}
+[data-variant='arcade'] .ar-footer p {
+  margin: 0;
+}
+[data-variant='arcade'] .ar-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
+[data-variant='arcade'] .ar-footer__nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  font-weight: 700;
+  text-underline-offset: 4px;
+}
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-footer {
+    padding-bottom: 108px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-variant='arcade'] .ar-veil__press {
+    animation: none;
+  }
+}
+
+/* Reduced motion: the hero pile becomes a clean upright grid, decorative stickers go away. */
+@media (prefers-reduced-motion: reduce) {
+  [data-variant='arcade'] .ar-pile {
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  [data-variant='arcade'] .ar-herocard {
+    position: static;
+    width: auto;
+  }
+  [data-variant='arcade'] .ar-pile .ar-sticker,
+  [data-variant='arcade'] .ar-pile__shuffle,
+  [data-variant='arcade'] .ar-deck .ar-sticker {
+    display: none;
+  }
+  [data-variant='arcade'] .ar-id__card,
+  [data-variant='arcade'] .ar-polaroid,
+  [data-variant='arcade'] .ar-hw,
+  [data-variant='arcade'] .ar-sk,
+  [data-variant='arcade'] .ar-lvl__card,
+  [data-variant='arcade'] .ar-word--pink,
+  [data-variant='arcade'] .ar-word--ink,
+  [data-variant='arcade'] .ar-nav__logo {
+    rotate: 0deg;
+  }
+}

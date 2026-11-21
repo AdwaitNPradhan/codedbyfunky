@@ -28,12 +28,21 @@ export function toImg(m: unknown): Img | null {
     focalY: d.focalY ?? 50,
   }
 }
-const imgs = (v: unknown) => arr(v).map(toImg).filter((x): x is Img => Boolean(x))
+const imgs = (v: unknown) =>
+  arr(v)
+    .map(toImg)
+    .filter((x): x is Img => Boolean(x))
 
 /** Everything a variant needs, in one call. Public access rules apply (published only). */
 export const getSiteData = cache(async (): Promise<SiteData> => {
   const payload = await getPayload({ config })
-  const q = { overrideAccess: false, depth: 1, limit: 200, sort: 'order', pagination: false } as const
+  const q = {
+    overrideAccess: false,
+    depth: 1,
+    limit: 200,
+    sort: 'order',
+    pagination: false,
+  } as const
   const [site, projects, photos, games, hardware, skills, experience] = await Promise.all([
     payload.findGlobal({ slug: 'site', depth: 1, overrideAccess: false }),
     payload.find({ collection: 'projects', ...q }),
@@ -61,14 +70,22 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       availability: { status: s.availability?.status ?? 'open', note: str(s.availability?.note) },
       stats: arr<Doc>(s.stats).map((x) => ({ value: str(x.value), label: str(x.label) })),
       publicEmail: strOrNull(s.publicEmail),
-      socials: arr<Doc>(s.socials).map((x) => ({ label: str(x.label), url: str(x.url), platform: str(x.platform) })),
+      socials: arr<Doc>(s.socials).map((x) => ({
+        label: str(x.label),
+        url: str(x.url),
+        platform: str(x.platform),
+      })),
       instagram: {
         handle: str(s.instagram?.handle),
         url: str(s.instagram?.url),
         followers: str(s.instagram?.followers),
         pitch: str(s.instagram?.pitch),
       },
-      seo: { title: str(s.seoTitle), description: str(s.seoDescription), ogImage: toImg(s.ogImage) },
+      seo: {
+        title: str(s.seoTitle),
+        description: str(s.seoDescription),
+        ogImage: toImg(s.ogImage),
+      },
     },
     projects: projects.docs.map((d: Doc) => ({
       id: String(d.id),
@@ -86,7 +103,11 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       approach: str(d.approach),
       outcome: str(d.outcome),
       metrics: arr<Doc>(d.metrics).map((m) => ({ value: str(m.value), label: str(m.label) })),
-      links: { live: strOrNull(d.links?.live), repo: strOrNull(d.links?.repo), caseStudy: strOrNull(d.links?.caseStudy) },
+      links: {
+        live: strOrNull(d.links?.live),
+        repo: strOrNull(d.links?.repo),
+        caseStudy: strOrNull(d.links?.caseStudy),
+      },
       accent: strOrNull(d.accent),
       featured: Boolean(d.featured),
     })),
@@ -131,7 +152,11 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
       year: d.year ?? null,
       cover: toImg(d.cover),
       gallery: imgs(d.gallery),
-      links: { repo: strOrNull(d.links?.repo), video: strOrNull(d.links?.video), writeup: strOrNull(d.links?.writeup) },
+      links: {
+        repo: strOrNull(d.links?.repo),
+        video: strOrNull(d.links?.video),
+        writeup: strOrNull(d.links?.writeup),
+      },
       featured: Boolean(d.featured),
     })),
     skills: skills.docs.map((d: Doc) => ({

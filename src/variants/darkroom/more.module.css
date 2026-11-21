@@ -1,0 +1,230 @@
+/* Games, Hardware, Skills, Experience */
+
+/* ================= Games: test strips ================= */
+.games { background: var(--ink); }
+.gamesGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 36px;
+}
+@media (min-width: 1100px) {
+  .gamesGrid { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 56px; align-items: start; }
+}
+.screen {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+}
+@media (min-width: 700px) {
+  .screen { aspect-ratio: 16 / 10; }
+}
+.poster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.poster img {
+  filter: grayscale(1) brightness(0.55) sepia(0.4);
+  transition: filter 0.7s var(--ease-out), transform 0.9s var(--ease-out);
+}
+.poster:hover img,
+.poster:focus-visible img { filter: none; transform: scale(1.03); }
+@media (hover: none) {
+  .poster img { filter: none; }
+}
+.playBadge {
+  position: absolute;
+  left: clamp(16px, 3vw, 28px);
+  bottom: clamp(16px, 3vw, 28px);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--safelight-text);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 17px;
+}
+.info { display: grid; gap: 8px; margin-top: 24px; }
+.gameTitle {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.gameTag { max-width: 56ch; }
+.controls { color: var(--ash); }
+.fullLink { justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 500; }
+.rack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 14px;
+  align-content: start;
+}
+.print {
+  display: block;
+  width: 100%;
+  padding: 7px 7px 10px;
+  text-align: left;
+  background: var(--paper);
+  color: var(--ink);
+  transition: transform var(--dur-medium) var(--ease-out);
+}
+.rack li:nth-child(odd) .print { transform: rotate(-1.2deg); }
+.rack li:nth-child(even) .print { transform: rotate(1deg); }
+.print:hover { transform: translateY(-5px) rotate(0deg) !important; }
+.print[aria-pressed='true'] { outline: 2px solid var(--safelight-text); outline-offset: 3px; }
+.mat { position: relative; display: block; overflow: hidden; background: var(--ink-2); }
+.printName { display: block; margin-top: 8px; color: var(--ash-dark); }
+
+/* ================= Hardware: bench notes ================= */
+.hardware { background: var(--ink); }
+.bench {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(48px, 6vw, 96px) clamp(24px, 5vw, 80px);
+  align-items: start;
+}
+.benchItem:nth-child(even) { margin-top: clamp(56px, 9vw, 140px); }
+.benchPhoto {
+  position: relative;
+  overflow: hidden;
+  background: var(--film);
+  outline: 1px solid var(--line);
+}
+.benchPhoto[data-status='planned'] img {
+  filter: brightness(0.1) grayscale(1);
+  transition: filter 0.8s var(--ease-out);
+}
+.benchPhoto[data-status='planned']:hover img {
+  filter: brightness(0.4) sepia(1) saturate(3) hue-rotate(-25deg);
+}
+.undeveloped {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ash);
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+.notes { padding-top: 22px; }
+.notesHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 20px;
+}
+.hwTitle {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3.2vw, 2.7rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.status { color: var(--ash); }
+.status[data-status='in-progress'] { color: var(--safelight-text); }
+.hwSummary { max-width: 52ch; margin-top: 12px; }
+.spec {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 6px 14px;
+  margin: 18px 0;
+}
+.spec dt { color: var(--ash); }
+.spec dd { margin: 0; }
+.hwLinks { display: flex; flex-wrap: wrap; gap: 6px 24px; font-weight: 500; }
+.hwLinks a { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 800px) {
+  .bench { grid-template-columns: minmax(0, 1fr); }
+  .benchItem:nth-child(even) { margin-top: 0; }
+}
+
+/* ================= Skills: kit list ================= */
+.skills { background: var(--ink); }
+.kit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 44px;
+}
+@media (min-width: 760px) {
+  .kit { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px clamp(32px, 5vw, 72px); }
+}
+.kitName {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--paper);
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.kitItem {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+}
+.kitItem i { flex: 1; align-self: center; border-bottom: 1px dotted var(--ash-dark); }
+.kitItem b { font-weight: 500; color: var(--ash); }
+.kitItem b[data-tag='daily'] { color: var(--safelight-text); }
+
+/* ================= Experience ================= */
+.exp { background: var(--ink); }
+.expList { border-top: 1px solid var(--line); }
+.expRow {
+  display: grid;
+  grid-template-columns: minmax(0, clamp(170px, 27vw, 380px)) minmax(0, 1fr);
+  gap: 20px clamp(24px, 4vw, 64px);
+  padding: clamp(28px, 4vw, 44px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.year {
+  font-family: var(--f-display);
+  font-size: clamp(4.2rem, 12vw, 11rem);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--paper);
+  transition: color 0.35s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+@media (hover: hover) {
+  .expRow:hover .year { color: var(--paper); }
+}
+@media (hover: none) {
+  .expRow[data-lit='true'] .year { color: var(--paper); }
+}
+.expBody { align-self: center; max-width: 64ch; }
+.expRole {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.expOrg { margin-top: 6px; font-weight: 500; }
+.expLoc { font-weight: 400; color: var(--ash); }
+.expRange { margin-top: 4px; color: var(--ash); }
+.expSummary { margin-top: 14px; }
+.expHi { margin-top: 12px; display: grid; gap: 6px; color: var(--ash); font-size: 16px; }
+.expHi li { position: relative; padding-left: 20px; }
+.expHi li::before { content: ''; position: absolute; left: 0; top: 0.8em; width: 10px; height: 1px; background: var(--safelight-text); }
+@media (max-width: 760px) {
+  .expRow { grid-template-columns: minmax(0, 1fr); }
+  .year { font-size: clamp(4rem, 22vw, 6.4rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster img, .print, .year, .benchPhoto img { transition: none !important; }
+}

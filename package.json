@@ -19,7 +19,6 @@
     "@gsap/react": "^2.1.2",
     "@payloadcms/db-mongodb": "3.94.1",
     "@payloadcms/next": "3.94.1",
-    "@payloadcms/richtext-lexical": "3.94.1",
     "@payloadcms/ui": "3.94.1",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
@@ -37,7 +36,7 @@
     "postprocessing": "^6.39.6",
     "react": "19.2.9",
     "react-dom": "19.2.9",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "three": "^0.187.0",
     "zod": "^4.6.7"
   },

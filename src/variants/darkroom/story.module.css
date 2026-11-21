@@ -1,0 +1,339 @@
+/* Hero, About, Work */
+
+/* ================= Hero ================= */
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100svh;
+  overflow: clip;
+  background: var(--ink);
+}
+.heroImg {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+}
+.heroWash {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--safelight) 38%, transparent), color-mix(in srgb, var(--safelight) 62%, transparent));
+  opacity: 0; /* the develop tween fades it from 1 to 0; without scripting it never shows */
+}
+.heroShade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink) 55%, transparent) 0,
+    transparent 24%,
+    transparent 36%,
+    color-mix(in srgb, var(--ink) 88%, transparent) 100%
+  );
+}
+.inner {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+}
+.heroBody {
+  padding: 96px var(--pad) 64px;
+}
+.h1 {
+  font-size: clamp(4rem, min(14.2vw, 20svh), 15.5rem);
+  margin-bottom: clamp(24px, 4vw, 56px);
+  max-width: 14ch;
+}
+.h1Line {
+  display: block;
+}
+.heroMeta {
+  display: grid;
+  grid-template-columns: minmax(0, 30rem) max-content;
+  justify-content: start;
+  gap: 20px 56px;
+  align-items: end;
+}
+.heroSub {
+  font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+  line-height: 1.4;
+  max-width: 34ch;
+  text-wrap: balance;
+}
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 26px;
+}
+.heroFacts {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 22px;
+  color: var(--ash);
+}
+.avail {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--paper);
+}
+.avail i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--safelight-text);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.45; }
+}
+
+/* Instagram stamp: solid safelight disc with a rotating text ring */
+.stamp {
+  position: absolute;
+  right: var(--pad);
+  bottom: 84px;
+  width: 128px;
+  height: 128px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--safelight-text);
+  color: var(--ink);
+  transition: transform var(--dur-medium) var(--ease-out);
+}
+.stamp:hover { transform: scale(1.07) rotate(-4deg); }
+.stampRing {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  animation: spin 22s linear infinite;
+}
+.stampArrow { display: grid; place-items: center; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1100px) {
+  .heroMeta { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  .stamp { bottom: auto; top: 72px; width: 104px; height: 104px; }
+}
+@media (max-width: 700px) {
+  .heroBody { padding-bottom: 76px; }
+}
+
+/* ================= About ================= */
+.about {
+  background: var(--ink);
+}
+.aboutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(32px, 6vw, 104px);
+  align-items: start;
+}
+.miniSheet {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 22px) clamp(8px, 1.2vw, 16px);
+  align-items: center;
+  padding: 40px clamp(12px, 2vw, 28px);
+  background: var(--film);
+}
+.miniSheet::before,
+.miniSheet::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: radial-gradient(circle at 12px 50%, var(--paper) 0 2.6px, transparent 3.2px) 0 0 / 24px 100% repeat-x;
+  opacity: 0.5;
+}
+.miniSheet::before { top: 14px; }
+.miniSheet::after { bottom: 14px; }
+.miniSheet a { display: block; }
+.miniFrame {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--ar);
+  background: var(--ink-2);
+  transition: transform var(--dur-medium) var(--ease-out);
+}
+.miniSheet a:hover .miniFrame { transform: scale(1.04); }
+.circle {
+  position: absolute;
+  inset: -14%;
+  width: 128%;
+  height: 128%;
+  overflow: visible;
+  pointer-events: none;
+}
+.frameNo {
+  display: block;
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: var(--ash);
+  letter-spacing: 0.1em;
+}
+.lead {
+  font-family: var(--f-display);
+  font-size: clamp(1.55rem, 1rem + 1.4vw, 1.75rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: 22px;
+  text-wrap: balance;
+}
+.bodyP {
+  max-width: 60ch;
+  margin-bottom: 14px;
+}
+.aboutLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin: 24px 0 36px;
+  font-weight: 500;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin: 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.stats dt { color: var(--ash); }
+.stats dd {
+  font-family: var(--f-display);
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+@media (max-width: 900px) {
+  .aboutGrid { grid-template-columns: minmax(0, 1fr); }
+  .aboutText { order: -1; }
+}
+
+/* ================= Work: print index ================= */
+.work {
+  background: var(--ink);
+}
+.index {
+  border-top: 1px solid var(--line);
+}
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 72px minmax(0, 24%) 28px;
+  align-items: center;
+  gap: 0 24px;
+  padding: clamp(22px, 3vw, 34px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.rowNo { color: var(--ash); transition: color var(--dur-small) var(--ease-out); }
+.row:hover .rowNo,
+.row:focus-visible .rowNo { color: var(--safelight-text); }
+.rowMain { display: block; min-width: 0; }
+.rowTitle {
+  display: block;
+  font-family: var(--f-display);
+  font-size: clamp(2.3rem, 5vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  overflow-wrap: break-word;
+  transition: transform 0.5s var(--ease-out);
+}
+.row:hover .rowTitle,
+.row:focus-visible .rowTitle { transform: translateX(14px); }
+.rowSummary {
+  display: block;
+  margin-top: 8px;
+  max-width: 52ch;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ash);
+}
+.rowYear { color: var(--ash); }
+.rowStack { font-size: 15px; line-height: 1.4; color: var(--ash); }
+.rowThumb {
+  display: none;
+  position: relative;
+  grid-area: thumb;
+  align-self: start;
+  width: 84px;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.rowArrow {
+  color: var(--ash);
+  transition: transform var(--dur-small) var(--ease-out), color var(--dur-small) var(--ease-out);
+}
+.row:hover .rowArrow,
+.row:focus-visible .rowArrow {
+  transform: translate(4px, -4px);
+  color: var(--safelight-text);
+}
+.allWork { margin-top: 36px; }
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: auto auto minmax(0, 1fr) 84px;
+    grid-template-areas:
+      'no year . thumb'
+      'main main main thumb'
+      'stack stack stack thumb';
+    gap: 6px 12px;
+  }
+  .rowNo { grid-area: no; }
+  .rowYear { grid-area: year; }
+  .rowMain { grid-area: main; }
+  .rowStack { grid-area: stack; font-size: 14px; }
+  .rowThumb { display: block; }
+  .rowArrow { display: none; }
+  .row:hover .rowTitle { transform: none; }
+}
+
+/* Cover that follows the cursor (fine pointers only) */
+.trail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+  width: 320px;
+  height: 220px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(-999px, 0, 0);
+  transition: opacity 0.25s ease-out;
+  background: var(--ink-2);
+  outline: 1px solid var(--line);
+  will-change: transform;
+}
+.trail[data-on='true'] { opacity: 1; }
+.trailImg {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.trailImg[data-active='true'] { opacity: 1; }
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .trail { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stampRing, .avail i { animation: none; }
+  .row:hover .rowTitle { transform: none; }
+}

@@ -1,5 +1,4 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -30,7 +29,6 @@ export default buildConfig({
   },
   collections: [Projects, Photos, Games, Hardware, Skills, Experience, Media, Messages, Users],
   globals: [Site],
-  editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   // Only our own origin may make credentialed calls.
   cors: [serverURL],

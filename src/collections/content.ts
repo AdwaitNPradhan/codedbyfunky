@@ -15,7 +15,12 @@ const order: Field = {
   defaultValue: 0,
   admin: { position: 'sidebar', description: 'Lower shows first' },
 }
-const featured: Field = { name: 'featured', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } }
+const featured: Field = {
+  name: 'featured',
+  type: 'checkbox',
+  defaultValue: false,
+  admin: { position: 'sidebar' },
+}
 const slug: Field = {
   name: 'slug',
   type: 'text',
@@ -23,11 +28,21 @@ const slug: Field = {
   unique: true,
   index: true,
   admin: { position: 'sidebar' },
-  validate: (v: unknown) => (typeof v === 'string' && /^[a-z0-9-]+$/.test(v)) || 'lowercase letters, digits, dashes',
+  validate: (v: unknown) =>
+    (typeof v === 'string' && /^[a-z0-9-]+$/.test(v)) || 'lowercase letters, digits, dashes',
 }
-const accent: Field = { name: 'accent', type: 'text', admin: { description: 'Hex color, e.g. #ff4d2e' } }
+const accent: Field = {
+  name: 'accent',
+  type: 'text',
+  admin: { description: 'Hex color, e.g. #ff4d2e' },
+}
 
-const contentAccess = { read: publishedOrLoggedIn, create: loggedIn, update: loggedIn, delete: adminOnly }
+const contentAccess = {
+  read: publishedOrLoggedIn,
+  create: loggedIn,
+  update: loggedIn,
+  delete: adminOnly,
+}
 
 const base = (s: Omit<CollectionConfig, 'access' | 'hooks'>): CollectionConfig => ({
   ...s,
@@ -44,7 +59,14 @@ export const Projects = base({
     { name: 'title', type: 'text', required: true },
     slug,
     { name: 'summary', type: 'textarea', required: true, maxLength: 280 },
-    { type: 'row', fields: [{ name: 'role', type: 'text' }, { name: 'client', type: 'text' }, { name: 'year', type: 'number' }] },
+    {
+      type: 'row',
+      fields: [
+        { name: 'role', type: 'text' },
+        { name: 'client', type: 'text' },
+        { name: 'year', type: 'number' },
+      ],
+    },
     { name: 'stack', type: 'text', hasMany: true },
     { name: 'tags', type: 'text', hasMany: true },
     { name: 'cover', type: 'upload', relationTo: 'media' },
@@ -52,11 +74,22 @@ export const Projects = base({
     { name: 'problem', type: 'textarea' },
     { name: 'approach', type: 'textarea' },
     { name: 'outcome', type: 'textarea' },
-    { name: 'metrics', type: 'array', fields: [{ name: 'value', type: 'text', required: true }, { name: 'label', type: 'text', required: true }] },
+    {
+      name: 'metrics',
+      type: 'array',
+      fields: [
+        { name: 'value', type: 'text', required: true },
+        { name: 'label', type: 'text', required: true },
+      ],
+    },
     {
       name: 'links',
       type: 'group',
-      fields: [{ name: 'live', type: 'text' }, { name: 'repo', type: 'text' }, { name: 'caseStudy', type: 'text' }],
+      fields: [
+        { name: 'live', type: 'text' },
+        { name: 'repo', type: 'text' },
+        { name: 'caseStudy', type: 'text' },
+      ],
     },
     accent,
     featured,
@@ -71,10 +104,27 @@ export const Photos = base({
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'image', type: 'upload', relationTo: 'media', required: true },
-    { type: 'row', fields: [{ name: 'location', type: 'text' }, { name: 'takenAt', type: 'date' }] },
-    { type: 'row', fields: [{ name: 'camera', type: 'text' }, { name: 'lens', type: 'text' }, { name: 'exposure', type: 'text', admin: { description: 'f/1.8 · 1/250 · ISO 200' } }] },
+    {
+      type: 'row',
+      fields: [
+        { name: 'location', type: 'text' },
+        { name: 'takenAt', type: 'date' },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'camera', type: 'text' },
+        { name: 'lens', type: 'text' },
+        { name: 'exposure', type: 'text', admin: { description: 'f/1.8 · 1/250 · ISO 200' } },
+      ],
+    },
     { name: 'instagramUrl', type: 'text' },
-    { name: 'series', type: 'text', admin: { description: 'Group photos into a series, e.g. "Monsoon"' } },
+    {
+      name: 'series',
+      type: 'text',
+      admin: { description: 'Group photos into a series, e.g. "Monsoon"' },
+    },
     featured,
     order,
     published,
@@ -96,7 +146,11 @@ export const Games = base({
     },
     { name: 'tagline', type: 'text' },
     { name: 'description', type: 'textarea' },
-    { name: 'controls', type: 'text', admin: { description: 'e.g. "Arrows / WASD · tap on mobile"' } },
+    {
+      name: 'controls',
+      type: 'text',
+      admin: { description: 'e.g. "Arrows / WASD · tap on mobile"' },
+    },
     { name: 'cover', type: 'upload', relationTo: 'media' },
     accent,
     featured,
@@ -125,12 +179,25 @@ export const Hardware = base({
     },
     { name: 'summary', type: 'textarea', required: true },
     { name: 'details', type: 'textarea' },
-    { name: 'components', type: 'text', hasMany: true, admin: { description: 'Parts: ESP32, BME280…' } },
+    {
+      name: 'components',
+      type: 'text',
+      hasMany: true,
+      admin: { description: 'Parts: ESP32, BME280…' },
+    },
     { name: 'tools', type: 'text', hasMany: true, admin: { description: 'KiCad, Fusion 360…' } },
     { name: 'year', type: 'number' },
     { name: 'cover', type: 'upload', relationTo: 'media' },
     { name: 'gallery', type: 'upload', relationTo: 'media', hasMany: true },
-    { name: 'links', type: 'group', fields: [{ name: 'repo', type: 'text' }, { name: 'video', type: 'text' }, { name: 'writeup', type: 'text' }] },
+    {
+      name: 'links',
+      type: 'group',
+      fields: [
+        { name: 'repo', type: 'text' },
+        { name: 'video', type: 'text' },
+        { name: 'writeup', type: 'text' },
+      ],
+    },
     featured,
     order,
     published,
@@ -146,9 +213,18 @@ export const Skills = base({
       name: 'category',
       type: 'select',
       required: true,
-      options: ['frontend', 'backend', 'mobile', 'devops', 'hardware', 'creative', 'tools'].map((v) => ({ label: v, value: v })),
+      options: ['frontend', 'backend', 'mobile', 'devops', 'hardware', 'creative', 'tools'].map(
+        (v) => ({ label: v, value: v }),
+      ),
     },
-    { name: 'level', type: 'number', min: 1, max: 5, defaultValue: 3, admin: { description: '1 = learning, 5 = expert' } },
+    {
+      name: 'level',
+      type: 'number',
+      min: 1,
+      max: 5,
+      defaultValue: 3,
+      admin: { description: '1 = learning, 5 = expert' },
+    },
     { name: 'years', type: 'number' },
     featured,
     order,
@@ -167,9 +243,18 @@ export const Experience = base({
       name: 'kind',
       type: 'select',
       defaultValue: 'job',
-      options: ['job', 'freelance', 'education', 'award', 'talk'].map((v) => ({ label: v, value: v })),
+      options: ['job', 'freelance', 'education', 'award', 'talk'].map((v) => ({
+        label: v,
+        value: v,
+      })),
     },
-    { type: 'row', fields: [{ name: 'start', type: 'date', required: true }, { name: 'end', type: 'date', admin: { description: 'Empty = present' } }] },
+    {
+      type: 'row',
+      fields: [
+        { name: 'start', type: 'date', required: true },
+        { name: 'end', type: 'date', admin: { description: 'Empty = present' } },
+      ],
+    },
     { name: 'location', type: 'text' },
     { name: 'url', type: 'text' },
     { name: 'summary', type: 'textarea' },

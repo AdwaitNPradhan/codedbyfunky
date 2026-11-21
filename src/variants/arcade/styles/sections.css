@@ -1,0 +1,1034 @@
+/* Content sections: about, work, photos, lab, skills, experience, contact. */
+
+/* ---------- About: ID card ---------- */
+[data-variant='arcade'] .ar-id {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+[data-variant='arcade'] .ar-id__card {
+  background: var(--white);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+  rotate: -1deg;
+}
+[data-variant='arcade'] .ar-id__strip {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+[data-variant='arcade'] .ar-id__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 32px);
+  padding: clamp(16px, 3vw, 28px);
+}
+[data-variant='arcade'] .ar-id__photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border: var(--b) solid var(--ink);
+  background: var(--lilac);
+}
+[data-variant='arcade'] .ar-id__photo .ar-pic {
+  object-fit: cover;
+}
+[data-variant='arcade'] .ar-id__sticker {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+}
+[data-variant='arcade'] .ar-id__sticker--1 {
+  top: -22px;
+  left: -22px;
+  rotate: -14deg;
+}
+[data-variant='arcade'] .ar-id__sticker--2 {
+  right: -22px;
+  bottom: -18px;
+  rotate: 10deg;
+}
+[data-variant='arcade'] .ar-id__fields,
+[data-variant='arcade'] .ar-id__fields dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+[data-variant='arcade'] .ar-id__fields {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  margin: 0;
+}
+[data-variant='arcade'] .ar-id__fields dt {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+[data-variant='arcade'] .ar-id__fields dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+[data-variant='arcade'] .ar-id__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 3.2vw, 2.4rem) !important;
+  line-height: 0.95 !important;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'wdth' 80;
+}
+[data-variant='arcade'] .ar-id__note {
+  display: block;
+  margin-top: 6px;
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+[data-variant='arcade'] .ar-id__bio {
+  display: grid;
+  gap: 18px;
+  justify-items: start;
+  padding-top: 12px;
+}
+[data-variant='arcade'] .ar-id__more {
+  display: grid;
+  gap: 12px;
+  max-width: 60ch;
+}
+[data-variant='arcade'] .ar-id__more[hidden] {
+  display: none;
+}
+[data-variant='arcade'] .ar-id__more p {
+  margin: 0;
+}
+[data-variant='arcade'] .ar-facts {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-fact,
+[data-variant='arcade'] .ar-fact-static {
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  padding: 14px 20px;
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow);
+  list-style: none;
+}
+[data-variant='arcade'] .ar-fact-static {
+  background: var(--cream);
+  box-shadow: var(--shadow-sm);
+}
+[data-variant='arcade'] .ar-fact strong,
+[data-variant='arcade'] .ar-fact-static strong {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.2rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'wdth' 75;
+}
+[data-variant='arcade'] .ar-fact span,
+[data-variant='arcade'] .ar-fact-static span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-id {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-id__grid {
+    grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-id__card {
+    box-shadow: var(--shadow);
+  }
+  [data-variant='arcade'] .ar-facts {
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+  [data-variant='arcade'] .ar-fact {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  [data-variant='arcade'] .ar-fact strong {
+    font-size: 1.7rem;
+  }
+  [data-variant='arcade'] .ar-fact span {
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+}
+
+/* ---------- Work: card pile on a board ---------- */
+[data-variant='arcade'] .ar-board {
+  position: relative;
+  padding: clamp(14px, 3vw, 40px);
+  background: var(--cream);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+[data-variant='arcade'] .ar-board::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--ink) 1.3px, transparent 1.5px);
+  background-size: 24px 24px;
+  opacity: 0.16;
+  pointer-events: none;
+}
+[data-variant='arcade'] .ar-pile-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (max-width: 1099px) {
+  [data-variant='arcade'] .ar-pile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 699px) {
+  [data-variant='arcade'] .ar-pile-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  [data-variant='arcade'] .ar-board {
+    box-shadow: var(--shadow);
+  }
+}
+[data-variant='arcade'] .ar-pcard-wrap {
+  min-width: 0;
+}
+[data-variant='arcade'] .ar-pcard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--white);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+[data-variant='arcade'] .ar-pcard__cover {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-bottom: var(--b) solid var(--ink);
+  overflow: hidden;
+}
+[data-variant='arcade'] .ar-pcard.tone-pink .ar-pcard__cover,
+[data-variant='arcade'] .ar-pcard.tone-yellow .ar-pcard__cover,
+[data-variant='arcade'] .ar-pcard.tone-blue .ar-pcard__cover,
+[data-variant='arcade'] .ar-pcard.tone-mint .ar-pcard__cover,
+[data-variant='arcade'] .ar-pcard.tone-orange .ar-pcard__cover,
+[data-variant='arcade'] .ar-pcard.tone-lilac .ar-pcard__cover {
+  background: inherit;
+}
+[data-variant='arcade'] .ar-pcard.tone-pink {
+  background: var(--white);
+}
+[data-variant='arcade'] .ar-pcard .ar-pic {
+  object-fit: cover;
+}
+[data-variant='arcade'] .ar-pcard__year {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+[data-variant='arcade'] .ar-pcard__body {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  flex: 1;
+  padding: 16px 16px 18px;
+}
+[data-variant='arcade'] .ar-pcard__sum {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+[data-variant='arcade'] .ar-pcard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+/* ---------- Photos: polaroid wall ---------- */
+[data-variant='arcade'] .ar-wall-photos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px 28px;
+  margin: 0;
+  padding: 14px 0 0;
+  list-style: none;
+}
+@media (max-width: 1099px) {
+  [data-variant='arcade'] .ar-wall-photos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 699px) {
+  [data-variant='arcade'] .ar-wall-photos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+  }
+}
+[data-variant='arcade'] .ar-polaroid {
+  rotate: var(--r);
+  transition: rotate 0.25s var(--ease-out), translate 0.25s var(--ease-out);
+}
+@media (hover: hover) {
+  [data-variant='arcade'] .ar-polaroid:hover {
+    rotate: 0deg;
+    translate: 0 -6px;
+  }
+}
+[data-variant='arcade'] .ar-flip {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  perspective: 1100px;
+}
+[data-variant='arcade'] .ar-flip__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+[data-variant='arcade'] .ar-flip__back {
+  transform: rotateY(-180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 14px 14px;
+  background: var(--yellow);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+[data-variant='arcade'] .ar-flip.is-flipped .ar-flip__front {
+  transform: rotateY(180deg);
+}
+[data-variant='arcade'] .ar-flip.is-flipped .ar-flip__back {
+  transform: rotateY(0deg);
+}
+[data-variant='arcade'] .ar-flip__text {
+  display: grid;
+  gap: 4px;
+  min-height: 0;
+  overflow: hidden;
+}
+[data-variant='arcade'] .ar-flip__text p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+[data-variant='arcade'] .ar-flip__meta {
+  font-weight: 400 !important;
+}
+[data-variant='arcade'] .ar-flip__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+[data-variant='arcade'] .ar-polaroid__btn {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 10px 10px 0;
+  background: var(--white);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+[data-variant='arcade'] .ar-polaroid__img {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border: var(--b) solid var(--ink);
+  background: var(--lilac);
+  overflow: hidden;
+}
+[data-variant='arcade'] .ar-polaroid__img .ar-pic {
+  object-fit: cover;
+}
+[data-variant='arcade'] .ar-polaroid__cap {
+  display: grid;
+  place-items: center;
+  min-height: 56px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  font-variation-settings: 'wdth' 80;
+}
+[data-variant='arcade'] .ar-tape {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  width: 88px;
+  height: 26px;
+  margin-left: -44px;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  rotate: var(--tape);
+  pointer-events: none;
+}
+
+/* Instagram slab */
+[data-variant='arcade'] .ar-insta {
+  padding-block: clamp(48px, 8vw, 100px);
+  overflow: clip;
+}
+[data-variant='arcade'] .ar-insta__link {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  text-decoration: none;
+  color: var(--ink);
+}
+[data-variant='arcade'] .ar-insta__big {
+  display: block;
+  max-width: 13ch;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.9rem, 10vw, 9rem);
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  font-variation-settings: 'wdth' 75, 'opsz' 96;
+  overflow-wrap: anywhere;
+}
+[data-variant='arcade'] .ar-insta__handle {
+  display: inline-block;
+  padding: 0 0.1em;
+  background: var(--ink);
+  color: var(--cream);
+  rotate: -1deg;
+  text-transform: none;
+  transition: rotate 0.2s var(--ease-back);
+}
+[data-variant='arcade'] .ar-insta__link:hover .ar-insta__handle {
+  rotate: 1.5deg;
+}
+[data-variant='arcade'] .ar-insta__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+}
+[data-variant='arcade'] .ar-insta__pitch {
+  max-width: 44ch;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+[data-variant='arcade'] .ar-insta__stamp {
+  position: absolute;
+  right: clamp(0px, 2vw, 24px);
+  top: -8px;
+  width: clamp(92px, 15vw, 190px);
+  height: auto;
+  animation: ar-spin 14s linear infinite;
+}
+[data-variant='arcade'] .ar-stamp__disc {
+  fill: var(--cream);
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+[data-variant='arcade'] .ar-stamp__text {
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 17px;
+  fill: var(--ink);
+  letter-spacing: 0.08em;
+}
+[data-variant='arcade'] .ar-stamp__star {
+  fill: var(--ink);
+}
+[data-variant='arcade'] .ar-insta__arrow {
+  position: absolute;
+  right: clamp(8px, 12vw, 200px);
+  bottom: 4px;
+  width: clamp(64px, 9vw, 112px);
+  height: clamp(52px, 7vw, 88px);
+  rotate: -28deg;
+  display: none;
+}
+@media (min-width: 900px) {
+  [data-variant='arcade'] .ar-insta__arrow {
+    display: block;
+  }
+}
+[data-variant='arcade'] .ar-insta--compact {
+  padding-block: clamp(32px, 5vw, 56px);
+}
+[data-variant='arcade'] .ar-insta--compact .ar-insta__big {
+  font-size: clamp(2rem, 6vw, 4.4rem);
+  max-width: none;
+}
+[data-variant='arcade'] .ar-insta--compact .ar-insta__stamp {
+  width: clamp(72px, 10vw, 120px);
+}
+[data-variant='arcade'] .ar-insta--compact .ar-insta__arrow {
+  display: none;
+}
+
+/* ---------- Lab: gadget drawer ---------- */
+[data-variant='arcade'] .ar-drawer {
+  background: var(--cream);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+[data-variant='arcade'] .ar-drawer__front {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 56px;
+  background: var(--ink);
+  color: var(--cream);
+}
+[data-variant='arcade'] .ar-drawer__plate {
+  padding: 4px 14px;
+  border: 2px solid var(--cream);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+[data-variant='arcade'] .ar-drawer__handle {
+  width: 96px;
+  height: 16px;
+  border: 3px solid var(--cream);
+  border-radius: 999px;
+}
+[data-variant='arcade'] .ar-drawer__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 32px);
+  margin: 0;
+  padding: clamp(16px, 3vw, 32px);
+  list-style: none;
+}
+@media (max-width: 799px) {
+  [data-variant='arcade'] .ar-drawer__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-drawer {
+    box-shadow: var(--shadow);
+  }
+}
+[data-variant='arcade'] .ar-hw {
+  rotate: var(--r);
+  min-width: 0;
+}
+[data-variant='arcade'] .ar-hw article {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--white);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+[data-variant='arcade'] .ar-hw.is-planned article {
+  border-style: dashed;
+  background: var(--cream);
+}
+[data-variant='arcade'] .ar-hw__cover {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-bottom: var(--b) solid var(--ink);
+  background: var(--mint);
+  overflow: hidden;
+}
+[data-variant='arcade'] .ar-hw.is-planned .ar-hw__cover {
+  border-bottom-style: dashed;
+}
+[data-variant='arcade'] .ar-hw__cover .ar-pic {
+  object-fit: cover;
+}
+[data-variant='arcade'] .ar-hw.is-planned .ar-hw__cover .ar-pic {
+  opacity: 0.55;
+}
+[data-variant='arcade'] .ar-hw__status {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+[data-variant='arcade'] .ar-hw__soon {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 4px 12px;
+  background: var(--yellow);
+  border: var(--b) solid var(--ink);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: 14px;
+  rotate: -6deg;
+}
+[data-variant='arcade'] .ar-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+}
+[data-variant='arcade'] .ar-hw:hover .ar-led,
+[data-variant='arcade'] .ar-hw:focus-within .ar-led {
+  background: var(--pink);
+  animation: ar-blink 1s steps(2) infinite;
+}
+[data-variant='arcade'] .ar-hw__body {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 16px;
+}
+[data-variant='arcade'] .ar-hw__body p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+[data-variant='arcade'] .ar-hw__year {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 0.6em;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+[data-variant='arcade'] .ar-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-specs li {
+  padding: 2px 10px;
+  background: var(--lilac);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 700;
+}
+[data-variant='arcade'] .ar-specs li:nth-child(2n) {
+  background: var(--yellow);
+}
+[data-variant='arcade'] .ar-log {
+  border-top: 2px dashed var(--ink);
+  padding-top: 4px;
+}
+[data-variant='arcade'] .ar-log summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-log summary::-webkit-details-marker {
+  display: none;
+}
+[data-variant='arcade'] .ar-log summary::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-right: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  rotate: 45deg;
+  translate: 0 -3px;
+  transition: rotate 0.2s var(--ease-out);
+}
+[data-variant='arcade'] .ar-log[open] summary::after {
+  rotate: -135deg;
+  translate: 0 3px;
+}
+[data-variant='arcade'] .ar-log__body {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 8px;
+}
+[data-variant='arcade'] .ar-log__body p {
+  font-size: 0.95rem !important;
+}
+[data-variant='arcade'] .ar-log__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+[data-variant='arcade'] .ar-log__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Skills: sticker sheet ---------- */
+[data-variant='arcade'] .ar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+[data-variant='arcade'] .ar-sheet {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+@media (max-width: 799px) {
+  [data-variant='arcade'] .ar-sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+[data-variant='arcade'] .ar-sheet__group {
+  padding: 20px 20px 26px;
+  background: var(--white);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+[data-variant='arcade'] .ar-sheet__title {
+  margin-bottom: 18px;
+}
+[data-variant='arcade'] .ar-sheet__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 18px;
+  margin: 0;
+  padding: 0 6px 6px;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-sk {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  padding: 8px 14px;
+  border: var(--b) solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 0 0 3px var(--white), 0 0 0 6px var(--ink), 4px 4px 0 6px var(--ink);
+  rotate: var(--r);
+}
+[data-variant='arcade'] .ar-sk__name {
+  font-weight: 700;
+  line-height: 1.15;
+}
+[data-variant='arcade'] .ar-sk__lv {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  [data-variant='arcade'] .ar-sk:hover {
+    animation: ar-wiggle 0.4s var(--ease-out);
+  }
+}
+@keyframes ar-wiggle {
+  25% {
+    rotate: -3deg;
+  }
+  50% {
+    rotate: 3deg;
+  }
+  75% {
+    rotate: -2deg;
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+/* ---------- Experience: level select ---------- */
+[data-variant='arcade'] .ar-path {
+  display: grid;
+  gap: 44px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+[data-variant='arcade'] .ar-lvl {
+  position: relative;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: clamp(14px, 3vw, 28px);
+  align-items: start;
+}
+[data-variant='arcade'] .ar-lvl:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 43px;
+  top: 92px;
+  bottom: -44px;
+  border-left: 4px dashed var(--ink);
+}
+[data-variant='arcade'] .ar-lvl__badge {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 88px;
+  height: 88px;
+  background: var(--cream);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  line-height: 1;
+}
+[data-variant='arcade'] .ar-lvl__badge span {
+  font-size: 12px;
+}
+[data-variant='arcade'] .ar-lvl__badge strong {
+  font-size: 2.2rem;
+}
+[data-variant='arcade'] .ar-lvl__card {
+  display: grid;
+  gap: 8px;
+  padding: clamp(16px, 3vw, 26px);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow);
+  rotate: -0.5deg;
+}
+[data-variant='arcade'] .ar-lvl.is-right .ar-lvl__card {
+  rotate: 0.6deg;
+}
+[data-variant='arcade'] .ar-lvl__card p {
+  margin: 0;
+}
+[data-variant='arcade'] .ar-lvl__when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+[data-variant='arcade'] .ar-lvl__org {
+  font-weight: 700;
+}
+[data-variant='arcade'] .ar-lvl__org a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-underline-offset: 3px;
+}
+[data-variant='arcade'] .ar-lvl__boss {
+  padding: 10px 12px;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  font-weight: 600;
+}
+[data-variant='arcade'] .ar-lvl__boss span {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 8px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+[data-variant='arcade'] .ar-lvl__more {
+  margin: 0;
+  padding-left: 1.2em;
+}
+@media (max-width: 599px) {
+  [data-variant='arcade'] .ar-lvl {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-lvl__badge {
+    width: 56px;
+    height: 56px;
+  }
+  [data-variant='arcade'] .ar-lvl__badge strong {
+    font-size: 1.4rem;
+  }
+  [data-variant='arcade'] .ar-lvl__badge span {
+    font-size: 9px;
+  }
+  [data-variant='arcade'] .ar-lvl:not(:last-child)::before {
+    left: 27px;
+    top: 60px;
+  }
+  [data-variant='arcade'] .ar-lvl__card {
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* ---------- Contact ---------- */
+[data-variant='arcade'] .ar-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: start;
+}
+[data-variant='arcade'] .ar-contact__info {
+  display: grid;
+  gap: 28px;
+  justify-items: start;
+}
+[data-variant='arcade'] .ar-email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 16px;
+}
+[data-variant='arcade'] .ar-email__text {
+  display: inline-block;
+  padding-block: 6px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4.4vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 6px;
+  font-variation-settings: 'wdth' 85, 'opsz' 60;
+}
+[data-variant='arcade'] .ar-contact__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+[data-variant='arcade'] .ar-form,
+[data-variant='arcade'] .ar-sent {
+  display: grid;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 32px);
+  background: var(--cream);
+  border: var(--b) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+[data-variant='arcade'] .ar-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+[data-variant='arcade'] .ar-field input,
+[data-variant='arcade'] .ar-field textarea {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  background: var(--white);
+  border: var(--b) solid var(--ink);
+  border-radius: 0;
+  font: inherit;
+  color: var(--ink);
+}
+[data-variant='arcade'] .ar-field textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+[data-variant='arcade'] .ar-field input:focus-visible,
+[data-variant='arcade'] .ar-field textarea:focus-visible {
+  outline: 4px solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+[data-variant='arcade'] .ar-field [aria-invalid='true'] {
+  background: var(--cream);
+  border-width: 5px;
+}
+[data-variant='arcade'] .ar-err {
+  margin: 8px 0 0;
+  padding: 6px 12px;
+  background: var(--pink);
+  border: var(--b) solid var(--ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+[data-variant='arcade'] .ar-form__msg {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+[data-variant='arcade'] .ar-form__msg.is-bad {
+  padding: 8px 12px;
+  background: var(--pink);
+  border: var(--b) solid var(--ink);
+}
+[data-variant='arcade'] .ar-form__msg a {
+  font-weight: 700;
+}
+[data-variant='arcade'] .ar-sent {
+  min-height: 300px;
+  align-content: center;
+}
+[data-variant='arcade'] .ar-stamp-sent {
+  justify-self: start;
+  padding: 4px 22px;
+  background: var(--mint);
+  border: 5px solid var(--ink);
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 8vw, 4.4rem);
+  letter-spacing: 0.06em;
+  rotate: -6deg;
+  animation: ar-stamp 0.4s var(--ease-back);
+}
+@keyframes ar-stamp {
+  from {
+    scale: 2.2;
+    opacity: 0;
+  }
+  to {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@media (max-width: 899px) {
+  [data-variant='arcade'] .ar-contact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-variant='arcade'] .ar-form,
+  [data-variant='arcade'] .ar-sent {
+    box-shadow: var(--shadow);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-variant='arcade'] .ar-insta__stamp {
+    animation: none;
+  }
+  [data-variant='arcade'] .ar-led {
+    animation: none !important;
+  }
+}
