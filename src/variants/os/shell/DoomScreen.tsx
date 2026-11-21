@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { getDoom, recoverDoom } from '@/app/actions/doom'
 import { useOS } from '../store'
 import { sfx } from '../sound'
 import styles from '../os.module.css'
@@ -43,9 +44,28 @@ export function DoomScreen({ onRestore }: { onRestore: () => void }) {
     return () => clearTimeout(t)
   }, [restoring, onRestore])
 
-  // Any key or tap only earns a snarky line.
+  // Ends early for everyone when the owner restores or flips the CMS kill switch.
+  useEffect(() => {
+    const t = setInterval(() => {
+      getDoom()
+        .then((d) => !d.active && onRestore())
+        .catch(() => {})
+    }, 30000)
+    return () => clearInterval(t)
+  }, [onRestore])
+
+  const [root, setRoot] = useState<'idle' | 'busy' | 'denied'>('idle')
+  const restore = async () => {
+    setRoot('busy')
+    const r = await recoverDoom().catch(() => ({ ok: false }))
+    if (r.ok) onRestore()
+    else setRoot('denied')
+  }
+
+  // Any key or tap only earns a snarky line (except on the restore controls).
   useEffect(() => {
     const on = (e: Event) => {
+      if (e.target instanceof Element && e.target.closest('[data-restore]')) return
       if (e instanceof KeyboardEvent && (e.metaKey || e.ctrlKey || e.altKey)) return
       sfx.error()
       setSnark(SNARK[nth.current++ % SNARK.length])
@@ -89,6 +109,20 @@ export function DoomScreen({ onRestore }: { onRestore: () => void }) {
             </>
           )}
         </p>
+        <p data-restore>
+          <button type="button" className={styles.doomRestore} onClick={restore} disabled={root === 'busy'}>
+            {root === 'busy' ? '[ Checking root… ]' : '[ Restore system (root only) ]'}
+          </button>
+        </p>
+        {root === 'denied' && (
+          <p data-restore role="alert">
+            Permission denied: only root can restore.{' '}
+            <a href="/admin" target="_blank" rel="noopener noreferrer" className={styles.doomRestoreLink}>
+              Log in as root
+            </a>
+            , then press Restore again.
+          </p>
+        )}
         <p className={styles.doomSnark} role="status" aria-live="polite">
           {snark ?? ' '}
         </p>

@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { hasRole } from '@/access'
 
 /**
  * Terminal easter egg: `sudo rm -rf / --no-preserve-root` blanks FunkyOS for every visitor for 1 hour.
@@ -107,4 +108,13 @@ export async function triggerDoom(): Promise<DoomResult> {
   state.lastTrigger = now
   state.doomUntil = now + DURATION_MS
   return { ok: true, active: true, until: state.doomUntil, now }
+}
+
+/** The owner's undo: only a signed-in admin (Payload session cookie) can end the blackout early. */
+export async function recoverDoom(): Promise<{ ok: boolean }> {
+  const payload = await getPayload({ config })
+  const { user } = await payload.auth({ headers: await headers() })
+  if (!hasRole(user, 'admin')) return { ok: false }
+  state.doomUntil = 0
+  return { ok: true }
 }
