@@ -50,6 +50,7 @@ export default function Terminal({ active, hidden }: AppProps) {
       history: history.current,
       clear: () => setLines([]),
       exec: (line) => void run(line),
+      focus: () => input.current?.focus({ preventScroll: true }),
       askPassword: (prompt) =>
         new Promise((resolve) => {
           setValue('')

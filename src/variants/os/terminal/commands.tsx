@@ -8,6 +8,7 @@ import { download, levelWord, monthYear, range, resumeFileName, slugify, social 
 import { triggerDoom } from '@/app/actions/doom'
 import { findVersion, modifiedLabel, VERSION_FILES } from '../versions'
 import { ResumeView } from './resume'
+import { Snake } from './snake'
 import ui from '../apps/apps.module.css'
 
 type OS = ReturnType<typeof useOS>
@@ -24,6 +25,8 @@ export type Ctx = {
   askPassword: (prompt: string) => Promise<string | null>
   /** Print `removed '<path>'` lines fast, for the rm -rf / easter egg. */
   wipe: (paths: string[]) => void
+  /** Give the keyboard back to the prompt (after a full-screen program like `snake`). */
+  focus: () => void
 }
 export type Cmd = {
   desc: string
@@ -393,7 +396,7 @@ export const COMMANDS: Record<string, Cmd> = {
           </tbody>
         </table>
         <Dim>
-          Tab completes. ↑/↓ history. Ctrl+L clears. Try `sudo hire funky`. Resume: `resume`,
+          Tab completes. ↑/↓ history. Ctrl+L clears. Try `sudo hire funky`, or `snake` for a break. Resume: `resume`,
           `cat resume.txt`, `whoami --verbose`. This is the FunkyOS shell; `linux` starts a real one.
         </Dim>
       </Lines>
@@ -677,12 +680,18 @@ export const COMMANDS: Record<string, Cmd> = {
       </Lines>
     ),
   },
+  snake: {
+    desc: 'play snake right here in the terminal',
+    run: (_a, ctx) => <Snake touch={ctx.os.mobile} onExit={ctx.focus} />,
+  },
   play: {
     desc: 'launch a game',
     usage: 'play <game>',
-    run: (args, { data, os }) => {
+    run: (args, ctx) => {
+      const { data, os } = ctx
       const q = args.join(' ').trim()
-      if (!q) return `usage: play <game>. Games: ${data.games.map((g) => g.slug).join(', ')}`
+      if (!q) return `usage: play <game>. Games: ${data.games.map((g) => g.slug).join(', ')}, snake`
+      if (q.toLowerCase() === 'snake') return COMMANDS.snake.run([], ctx)
       const g = findGame(data, q)
       if (!g) return `no game called "${q}". Run \`games\`.`
       os.open('game', { slug: g.slug })
